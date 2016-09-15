@@ -1,0 +1,33 @@
+clone:
+  depth: 1
+
+cache:
+  mount:
+    - /drone/bundler
+    - /drone/docker-image.tar
+
+build:
+  image: viki/node:0.12.9
+  auth_config:
+    username: $$DOCKER_USERNAME
+    password: $$DOCKER_PASSWORD
+    email: $$DOCKER_EMAIL
+  environment:
+    - RAILS_ENV=test
+notify:
+  slack:
+    webhook_url: https://hooks.slack.com/services/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
+    channel: drone-ci
+    username: Drone
+
+publish:
+  docker:
+    username: $$DOCKER_USERNAME
+    password: $$DOCKER_PASSWORD
+    email: $$DOCKER_EMAIL
+    repo: viki/swagger-editor
+    save:
+      destination: /drone/docker-image.tar
+    load: /drone/docker-image.tar
+    tag:
+      - "$${COMMIT:0:7}"

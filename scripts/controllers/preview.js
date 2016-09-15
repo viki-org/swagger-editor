@@ -94,6 +94,8 @@ SwaggerEditor.controller('PreviewCtrl', function PreviewCtrl(Storage, Builder,
     _.each(result.warnings, function(warning) {
       Editor.annotateSwaggerError(warning, 'warning');
     });
+    listAllOperation();
+    listAllDefnitions();
   }
 
   /**
@@ -241,6 +243,7 @@ SwaggerEditor.controller('PreviewCtrl', function PreviewCtrl(Storage, Builder,
 
     _.each($scope.specs.paths, function(path, pathName) {
       _.each(path, function(operation, operationName) {
+        path.$folded = true;
         if (_.isObject(operation)) {
           operation.$folded = true;
           FoldStateManager.foldEditor([

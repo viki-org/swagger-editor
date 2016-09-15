@@ -3,3 +3,18 @@
  * customize Swagger Editor you can serve this file with your CSS that overrides
  * or extends Swagger Editor styling.
 */
+
+.help,
+.preferences,
+.editor.pane,
+.ui-splitbar,
+[tooltip-popup],
+.jump-to-yaml {
+    display: none !important;
+}
+
+.preview.pane {
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+}

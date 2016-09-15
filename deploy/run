@@ -1,0 +1,45 @@
+#!/bin/bash
+
+# exit if any command in this script fails
+set -e
+
+# enable bash debugging
+set -x
+
+set -o pipefail
+
+# consul test
+CONSUL_ADDRESS=consul.local
+CONSUL_CODE=`curl -sL -w "%{http_code}\\n" -H 'User-Agent:consul_test' http://$CONSUL_ADDRESS/v1/catalog/nodes -o /dev/null`
+if [ $CONSUL_CODE -ne 200 ]
+then
+    echo "Consul has failed. Aborting deploy"
+    false
+fi
+
+APP_DIR=/opt/swagger-editor
+
+# Get deploy private key
+consulsub get --acl $CONSUL_ACL --address $CONSUL_ADDRESS --key global/service/${SERVICE}/${ENV}/DEPLOYKEY \
+              --datacenter ${DC} 2>&1 | tee /root/.ssh/deploykey
+consulsub sub --acl ${CONSUL_ACL} --address $CONSUL_ADDRESS --datacenter ${ENV} \
+              --output /etc/nginx/sites-available/swagger-editor --input $APP_DIR/deploy/swagger-editor.nginx \
+              --prefix global/service/${SERVICE}/${ENV}
+consulsub sub --acl ${CONSUL_ACL} --address $CONSUL_ADDRESS --datacenter ${ENV} \
+              --output /etc/supervisor/conf.d/swagger-editor.conf --input $APP_DIR/deploy/swagger-editor.conf \
+              --prefix global/service/${SERVICE}/${ENV}
+
+# nginx setup
+cp $APP_DIR/deploy/nginx.conf /etc/nginx/nginx.conf
+cp $APP_DIR/deploy/logrotate.nginx /etc/logrotate.d/nginx
+ln -sf /etc/nginx/sites-available/swagger-editor /etc/nginx/sites-enabled/swagger-editor
+rm -f /etc/nginx/sites-enabled/default
+
+cd $APP_DIR && npm install
+
+echo "alias status='supervisorctl  status'"           >> ~/.bashrc
+echo "alias start='supervisorctl   start swagger-editor'"   >> ~/.bashrc
+echo "alias restart='supervisorctl restart swagger-editor'" >> ~/.bashrc
+echo "alias stop='supervisorctl    stop swagger-editor'"    >> ~/.bashrc
+
+/usr/bin/supervisord -n

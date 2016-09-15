@@ -1,0 +1,3 @@
+[submodule "pull/repos/tethys"]
+	path = pull/repos/tethys
+	url = git@github.com:viki-org/tethys.git

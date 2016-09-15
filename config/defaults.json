@@ -1,8 +1,6 @@
 {
   "codegen": {
-    "servers": "http://generator.swagger.io/api/gen/servers",
     "clients": "http://generator.swagger.io/api/gen/clients",
-    "server": "http://generator.swagger.io/api/gen/servers/{language}",
     "client": "http://generator.swagger.io/api/gen/clients/{language}"
   },
   "analytics": {
@@ -33,9 +31,9 @@
   "keyPressDebounceTime": 200,
   "backendEndpoint": "/editor/spec",
   "useYamlBackend": false,
-  "disableFileMenu": false,
+  "disableFileMenu": true,
   "headerBranding": false,
-  "disableNewUserIntro": false,
+  "disableNewUserIntro": true,
   "enableTryIt": true,
   "brandingCssClass": "",
   "importProxyUrl": "https://cors-it.herokuapp.com/?url=",
