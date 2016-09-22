@@ -20,3 +20,4 @@ deploy:
       - echo "Hello docker"
     when:
       branch: master
+
