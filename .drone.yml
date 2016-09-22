@@ -1,36 +1,22 @@
-clone:
+image: viki/node:0.12.9
+git:
   depth: 1
-  recursive: true
-  submodule_override:
-    pull/repos/tethys: https://github.com/viki-org/tethys.git
-
-cache:
-  mount:
-    - /drone/bundler
-    - /drone/docker-image.tar
-
-build:
-  image: viki/node:0.12.9
-  auth_config:
-    username: $$DOCKER_USERNAME
-    password: $$DOCKER_PASSWORD
-    email: $$DOCKER_EMAIL
-  environment:
-    - RAILS_ENV=test
-notify:
-  slack:
-    webhook_url: https://hooks.slack.com/services/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
-    channel: drone-ci
-    username: Drone
-
+script:
+  - ls -lth pull/repos/tethys/
 publish:
   docker:
-    username: $$DOCKER_USERNAME
-    password: $$DOCKER_PASSWORD
-    email: $$DOCKER_EMAIL
-    repo: viki/swagger-editor
-    save:
-      destination: /drone/docker-image.tar
-    load: /drone/docker-image.tar
-    tag:
-      - "$${COMMIT:0:7}"
+    docker_host: $$docker_host
+    docker_version: 1.6.2
+    registry_login: true
+    registry_login_url: https://index.docker.io/v1/
+    username: $$docker_username
+    password: $$docker_password
+    email: $$docker_email
+    image_name: viki/swagger-editor
+    keep_build: true
+deploy:
+  bash:
+    script:
+      - echo "Hello docker"
+    when:
+      branch: master
