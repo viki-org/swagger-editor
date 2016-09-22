@@ -15,15 +15,7 @@
   },
   "exampleFiles": [
     "default.yaml",
-    "heroku-pets.yaml",
-    "minimal.yaml",
-    "echo.yaml",
-    "petstore_simple.yaml",
-    "petstore_full.yaml",
-    "basic-auth.yaml",
-    "security.yaml",
-    "instagram.yaml",
-    "twitter.yaml"
+    "test.yaml"
   ],
   "autocompleteExtension": {},
   "useBackendForStorage": false,
@@ -31,7 +23,7 @@
   "keyPressDebounceTime": 200,
   "backendEndpoint": "/editor/spec",
   "useYamlBackend": false,
-  "disableFileMenu": true,
+  "disableFileMenu": false,
   "headerBranding": false,
   "disableNewUserIntro": true,
   "enableTryIt": true,

@@ -1,3 +1,9 @@
 [submodule "pull/repos/tethys"]
 	path = pull/repos/tethys
 	url = git@github.com:viki-org/tethys.git
+[submodule "pull/repos/oceanus"]
+       path = pull/repos/oceanus
+       url = git@github.com:viki-org/oceanus.git
+[submodule "pull/repos/vikipass"]
+       path = pull/repos/vikipass
+       url = git@github.com:viki-org/vikipass.git

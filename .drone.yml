@@ -1,5 +1,8 @@
 clone:
   depth: 1
+  recursive: false
+  submodule_override:
+    pull/repos/tethys: https://github.com/viki-org/tethys.git
 
 cache:
   mount:

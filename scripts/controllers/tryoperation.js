@@ -1,6 +1,7 @@
 'use strict';
 
 var angular = require('angular');
+var crypto = require('crypto');
 
 var _ = require('lodash');
 var $ = require('jquery');
@@ -553,6 +554,20 @@ SwaggerEditor.controller('TryOperation', function($scope, formdataFilter,
     // queryParamsStr can be undefined. Fall back to empty string in that case
     queryParamsStr = queryParamsStr ? ('?' + queryParamsStr) : '';
 
+    var auth = AuthManager.getAuth('ClientSecret');
+    if (auth && AuthManager.securityIsAuthenticated('ClientSecret')) {
+      console.log("signing the request");
+      var secret = auth.options.apiKey;
+      console.log("secret: " + secret);
+      var bodyParamContent = $scope.getRequestBody();
+      queryParamsStr += "&t=" + parseInt(new Date().getTime() / 1000, 10);
+      var cryptoHash = crypto.createHmac('sha1', secret);
+      cryptoHash.update(new Buffer(basePath + pathStr + queryParamsStr + bodyParamContent, 'utf-8'));
+      queryParamsStr += "&sig=" + (cryptoHash.digest('hex'));
+    } else if (auth) {
+      console.log("auth is defined");
+    }
+
     // constructing the URL
     return scheme + '://' + // example: http://
       host +                // example: api.example.com
@@ -586,7 +601,9 @@ SwaggerEditor.controller('TryOperation', function($scope, formdataFilter,
 
           // apiKey security can be in header, if it's in header use it
           } else if (auth.type === 'apiKey' && auth.security.in === 'header') {
-            authHeader[auth.security.name] = auth.options.apiKey;
+            if (auth.security.name !== 'secret') {
+              authHeader[auth.security.name] = auth.options.apiKey;
+            }
 
           // OAuth securities are always in header
           } else if (auth.type === 'oAuth2') {

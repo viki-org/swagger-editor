@@ -22,10 +22,10 @@ APP_DIR=/opt/swagger-editor
 # Get deploy private key
 consulsub get --acl $CONSUL_ACL --address $CONSUL_ADDRESS --key global/service/${SERVICE}/${ENV}/DEPLOYKEY \
               --datacenter ${DC} 2>&1 | tee /root/.ssh/deploykey
-consulsub sub --acl ${CONSUL_ACL} --address $CONSUL_ADDRESS --datacenter ${ENV} \
+consulsub sub --acl ${CONSUL_ACL} --address $CONSUL_ADDRESS --datacenter ${DC} \
               --output /etc/nginx/sites-available/swagger-editor --input $APP_DIR/deploy/swagger-editor.nginx \
               --prefix global/service/${SERVICE}/${ENV}
-consulsub sub --acl ${CONSUL_ACL} --address $CONSUL_ADDRESS --datacenter ${ENV} \
+consulsub sub --acl ${CONSUL_ACL} --address $CONSUL_ADDRESS --datacenter ${DC} \
               --output /etc/supervisor/conf.d/swagger-editor.conf --input $APP_DIR/deploy/swagger-editor.conf \
               --prefix global/service/${SERVICE}/${ENV}
 
