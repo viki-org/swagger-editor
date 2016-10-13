@@ -1,3 +1,40 @@
+# Deploying to Api-Docs
+
+
+## Updating the code
+
+```
+vsh app3.dal api-docs
+cd /opt/swagger-editor
+if <its a new repo>
+   # Create a submodule of the repo
+   cd pull/repos;
+   it submodule add git@github.com:viki-org/<repo>.git
+else
+   # Checkout the latest master
+   cd pull/repos/<repo>
+   git pull --rebase
+end
+```
+## Merging the yaml
+
+**/opt/swagger-editor/pull/merge.rb [filename]** 
+
+default: spec-files/test.yaml
+
+## Testing
+Open https://api-docs.viki.net/#/
+
+File -> open example (test.yaml)
+
+## Publish
+cp spec-files/test.yaml spec-files/default.yaml
+
+Note: swagger-editor has a local copy of the yaml. to reload File->open example default.yaml
+
+
+
+
 # Swagger Editor
 
 [![Build Status](https://travis-ci.org/swagger-api/swagger-editor.svg?branch=master)](https://travis-ci.org/swagger-api/swagger-editor)
