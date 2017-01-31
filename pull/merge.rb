@@ -46,7 +46,7 @@ if __FILE__ == $0
   '     The returned value includes two fields: token and user. The token acts like a session id, and should be included in any subsequent user-specific requests via token=TOKEN. The user   field in general information about the user.'
 
 
-  folder = File.join('pull', 'repos', '*' , 'docs', '*.yaml')
+  folder = File.join('/opt', 'swagger-editor', 'pull', 'repos', '*' , 'docs', '*.yaml')
   puts folder
   defaults = global_api_doc.keys
   global_api_doc['paths'] = {}
@@ -77,7 +77,7 @@ if __FILE__ == $0
     end
   end
 
-  output_file = ARGV[0].nil? ? 'spec-files/test.yaml' : ARGV[0]
+  output_file = ARGV[0].nil? ? '/opt/swagger-editor/spec-files/test.yaml' : ARGV[0]
   puts output_file
   File.open(output_file, 'w') do |fp|
     fp.write global_api_doc.to_yaml

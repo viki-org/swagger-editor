@@ -1,0 +1,13 @@
+server {
+  listen 80;
+  server_name _;
+  access_log /var/log/nginx/api-docs_access.log logstash_json buffer=32K;
+
+  location /slate {
+        rewrite ^/slate/?(.*)$ /$1 break;
+        proxy_pass http://127.0.0.1:4567;
+  }
+  location / {
+        proxy_pass http://127.0.0.1:$SERVER_PORT;
+    }
+}

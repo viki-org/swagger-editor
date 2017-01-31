@@ -1,13 +1,9 @@
 clone:
-  depth: 1
-  recursive: false
-  submodule_override:
-    pull/repos/tethys: https://github.com/viki-org/tethys.git
+  depth: 2
 
 cache:
   mount:
-    - /drone/bundler
-    - /drone/docker-image.tar
+    - /drone/docker
 
 build:
   image: viki/node:0.12.9
@@ -15,8 +11,8 @@ build:
     username: $$DOCKER_USERNAME
     password: $$DOCKER_PASSWORD
     email: $$DOCKER_EMAIL
-  environment:
-    - RAILS_ENV=test
+  commands:
+    - npm install
 notify:
   slack:
     webhook_url: https://hooks.slack.com/services/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
@@ -29,8 +25,6 @@ publish:
     password: $$DOCKER_PASSWORD
     email: $$DOCKER_EMAIL
     repo: viki/swagger-editor
-    save:
-      destination: /drone/docker-image.tar
-    load: /drone/docker-image.tar
     tag:
       - "$${COMMIT:0:7}"
+      - latest

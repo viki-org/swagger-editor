@@ -23,19 +23,39 @@ APP_DIR=/opt/swagger-editor
 consulsub get --acl $CONSUL_ACL --address $CONSUL_ADDRESS --key global/service/${SERVICE}/${ENV}/DEPLOYKEY \
               --datacenter ${DC} 2>&1 | tee /root/.ssh/deploykey
 consulsub sub --acl ${CONSUL_ACL} --address $CONSUL_ADDRESS --datacenter ${DC} \
-              --output /etc/nginx/sites-available/swagger-editor --input $APP_DIR/deploy/swagger-editor.nginx \
+              --output /etc/nginx/sites-available/api-docs --input $APP_DIR/deploy/api-docs.nginx \
               --prefix global/service/${SERVICE}/${ENV}
 consulsub sub --acl ${CONSUL_ACL} --address $CONSUL_ADDRESS --datacenter ${DC} \
-              --output /etc/supervisor/conf.d/swagger-editor.conf --input $APP_DIR/deploy/swagger-editor.conf \
+              --output /etc/supervisor/conf.d/api-docs.conf --input $APP_DIR/deploy/api-docs.conf \
               --prefix global/service/${SERVICE}/${ENV}
 
 # nginx setup
 cp $APP_DIR/deploy/nginx.conf /etc/nginx/nginx.conf
 cp $APP_DIR/deploy/logrotate.nginx /etc/logrotate.d/nginx
-ln -sf /etc/nginx/sites-available/swagger-editor /etc/nginx/sites-enabled/swagger-editor
+ln -sf /etc/nginx/sites-available/api-docs /etc/nginx/sites-enabled/api-docs
 rm -f /etc/nginx/sites-enabled/default
 
 cd $APP_DIR && npm install
+
+#Add Submodules
+eval "$(ssh-agent -s)"
+chmod 400 ~/.ssh/deploykey
+ssh-add ~/.ssh/deploykey
+#cd $APP_DIR/pull/repos
+#git submodule add git@github.com:viki-org/tethys.git
+#git submodule add git@github.com:viki-org/users.git
+#git submodule add git@github.com:viki-org/vikipass.git
+#git submodule add git@github.com:viki-org/theia.git
+#git submodule add git@github.com:viki-org/media-engine.git
+#git submodule add git@github.com:viki-org/oceanus.git
+
+
+#Slate
+cd /opt
+git clone https://github.com/viki-org/slate
+cd slate
+curl -sSL https://get.rvm.io | bash -s stable --ruby
+bundle install
 
 echo "alias status='supervisorctl  status'"           >> ~/.bashrc
 echo "alias start='supervisorctl   start swagger-editor'"   >> ~/.bashrc
