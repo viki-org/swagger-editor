@@ -153,6 +153,14 @@ SwaggerEditor.controller('HeaderCtrl', function HeaderCtrl($scope, $uibModal,
     });
   };
 
+  $scope.openReposApi = function() {
+    $uibModal.open({
+      template: require('templates/open-repos-api.html'),
+      controller: 'OpenReposApiCtrl',
+      size: 'large'
+    });
+  };  
+
   $scope.openPreferences = function() {
     $uibModal.open({
       template: require('templates/preferences.html'),

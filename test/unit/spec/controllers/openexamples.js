@@ -37,6 +37,12 @@ describe('Controller: OpenExamplesCtrl', function() {
       $uibModalInstance: $uibModalInstance,
       FileLoader: FileLoader
     });
+
+    $controller('OpenReposApiCtrl', {
+      $scope: scope,
+      $uibModalInstance: $uibModalInstance,
+      FileLoader: FileLoader
+    })
   }));
 
   it('should have a scope', function() {
