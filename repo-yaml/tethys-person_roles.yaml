@@ -1,0 +1,192 @@
+---
+swagger: '2.0'
+host: api-staging.viki.net
+basePath: /v4
+securityDefinitions:
+  ClientId:
+    type: apiKey
+    name: app
+    in: query
+    description: Register your application at the **Viki application dashboard**.You
+      may use your normal Viki account or create a separate account to manage your
+      applications. You will be granted a **Client ID** and a **Client Secret**.
+  ClientSecret:
+    type: apiKey
+    name: secret
+    in: header
+  Token:
+    type: apiKey
+    name: token
+    in: query
+    description: ! '     Login a user to obtain a user access token.     **POST /v5/sessions.json**     *Params*       *
+      username       * password     Example: `{\"username\": \"tyler\",\"password\":
+      \"relyt\"}`     The returned value includes two fields: token and user. The
+      token acts like a session id, and should be included in any subsequent user-specific
+      requests via token=TOKEN. The user   field in general information about the
+      user.'
+info:
+  description: ''
+  version: '4.0'
+  title: Person Role
+  contact:
+    name: platform@viki.com
+schemes:
+- http
+- https
+tags:
+- name: Person Role
+  description: Manage person roles
+paths:
+  /person-roles.json:
+    get:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      tags:
+      - Person Role
+      summary: Get a list of person roles with associated titles
+      operationId: getPersonRoles
+      produces:
+      - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: ! '#/definitions/PersonRoleListResponse'
+    post:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Person Role
+      summary: Create a new Person Role
+      operationId: createPersonRole
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/CreatePersonRole"
+      responses:
+        201:
+          description: Created
+          schema:
+            properties:
+              id:
+                type: string
+        400:
+          description: Error
+          schema:
+            $ref: ! '#/definitions/PersonRoleError'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/PersonRoleError'
+  /person-roles/{id}.json:
+    delete:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Person Role
+      summary: delete a Person Role specific to id
+      operationId: 
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        type: string
+        name: id
+        required: true
+      responses:
+        200:
+          description: OK
+          type: object
+          properties:
+            ok: 
+              type: boolean
+        400:
+          description: Error
+          schema:
+            $ref: ! '#/definitions/PersonRoleError'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/PersonRoleError'
+            
+definitions:
+  CreatePersonRole:
+    title: PersonRole
+    type: object
+    properties:
+      priority:
+        type: integer
+        default: 0
+      titles:
+        type: array
+        items:
+          type: object
+          properties:
+            language:
+              type: string
+              required: true
+            title:
+              type: string
+              required: true
+            title_aka:
+              type: array
+              items:
+                type: string
+            title_phonetic:
+              type: string
+            title_seo:
+              type: string
+  PersonRoleListResponse:
+    title: PersonRoleList
+    type: object
+    properties:
+      more:
+        type: boolean
+      response:
+        type: array
+        items:
+          type: object
+          properties:
+            id: 
+              type: string
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+            priority:
+              type: integer
+            titles:
+              type: object
+              properties:
+                example: {'en': 'husband'}
+  PersonRoleError:
+    title: Error
+    type: object
+    properties:
+      error:
+        type: array
+        items:
+          type: string
+      vcode:
+        type: integer
+  PersonRoleNotFound:
+    title: Error
+    type: object
+    properties:
+      error:
+        type: string
+      vcode:
+        type: integer

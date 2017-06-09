@@ -1,0 +1,228 @@
+---
+swagger: '2.0'
+host: api-staging.viki.net
+basePath: /v4
+securityDefinitions:
+  ClientId:
+    type: apiKey
+    name: app
+    in: query
+    description: Register your application at the **Viki application dashboard**.You
+      may use your normal Viki account or create a separate account to manage your
+      applications. You will be granted a **Client ID** and a **Client Secret**.
+  ClientSecret:
+    type: apiKey
+    name: secret
+    in: header
+  Token:
+    type: apiKey
+    name: token
+    in: query
+    description: ! '     Login a user to obtain a user access token.     **POST /v5/sessions.json**     *Params*       *
+      username       * password     Example: `{\"username\": \"tyler\",\"password\":
+      \"relyt\"}`     The returned value includes two fields: token and user. The
+      token acts like a session id, and should be included in any subsequent user-specific
+      requests via token=TOKEN. The user   field in general information about the
+      user.'
+info:
+  description: ''
+  version: '4.0'
+  title: Image
+  contact:
+    name: platform@viki.com
+schemes:
+- http
+- https
+tags:
+- name: Image
+  description: POST, PATCH and DELET images
+paths:
+  /images/{path}/{resource_id}/{type}.json:
+    post:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Image
+      summary: Create a new image
+      operationId: createImage
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        type: string
+        name: path
+        required: true
+      - in: path
+        type: string
+        name: resource_id
+        required: true
+      - in: path
+        type: string
+        name: type
+        required: true
+      - in: body
+        name: file
+        required: true
+        type: string (base64-encoded, required if image_url is not given, otherwise disallowed)
+      - in: body
+        name: image_url
+        required: true
+        type: string (required if file is not given, otherwise disallowed)
+      - in: body
+        name: x
+        required: false
+        type: string
+      - in: body
+        name: y
+        required: false
+        type: string
+      - in: body
+        name: source
+        required: false
+        type: string
+      responses:
+        201:
+          description: Created
+          schema:
+            properties:
+              ok:
+                type: boolean
+                example: true
+        400:
+          description: Error
+          schema:
+            $ref: ! '#/definitions/ResponseError'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/ResponseError'
+    patch:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Image
+      summary: update a Image specific to (resource_id, type) pair
+      operationId: 
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        type: string
+        name: path
+        required: true
+      - in: path
+        type: string
+        name: resource_id
+        required: true
+      - in: path
+        type: string
+        name: type
+        required: true
+      - in: body
+        name: file
+        required: false
+        type: string (base64-encoded, can't coexist with image_url)
+      - in: body
+        name: image_url
+        required: false
+        type: string (can't coexist with file)
+      - in: body
+        name: x
+        required: false
+        type: string
+      - in: body
+        name: y
+        required: false
+        type: string
+      - in: body
+        name: source
+        required: false
+        type: string
+      responses:
+        200:
+          description: OK
+          type: object
+          properties:
+            ok: 
+              type: boolean
+        400:
+          description: Error
+          schema:
+            $ref: ! '#/definitions/ResponseError'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/ResponseError'
+    delete:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Image
+      summary: delete a Image specific to (resource_id, type) pair
+      operationId: 
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        type: string
+        name: path
+        required: true
+      - in: path
+        type: string
+        name: resource_id
+        required: true
+      - in: path
+        type: string
+        name: type
+        required: true
+      responses:
+        200:
+          description: OK
+          type: object
+          properties:
+            ok: 
+              type: boolean
+        400:
+          description: Error
+          schema:
+            $ref: ! '#/definitions/ResponseError'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/ResponseError'        
+definitions:
+  CreateImage:
+    title: Image
+    type: object
+    properties:
+      file:
+        type: string
+        default: 
+      image_url:
+        type: string
+      x:
+        type: string
+  ImageResponse:
+    title: PersonRoleList
+    type: object
+    properties:
+      ok:
+        type: boolean
+  ResponseError:
+    title: Error
+    type: object
+    properties:
+      error:
+        type: array
+        items:
+          type: string
+      vcode:
+        type: integer

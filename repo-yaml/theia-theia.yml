@@ -1,0 +1,452 @@
+swagger: '2.0'
+info:
+  title: Theia API V5
+  description: This is a description of Theia's API
+  version: "1.0.0"
+# the domain of the service
+host: api.viki.io
+# array of all schemes that your API supports
+schemes:
+  - https
+# will be prefixed to all paths
+produces:
+  - application/json
+basePath: /v5
+paths:
+  /master_videos:
+    post:
+      summary: API to create a new master_video
+      description: |
+        This endpoint helps to create a new master_video. A master_video is a place holder for any source video and can be associcated with multiple videos. Similarly a video can be associated with multiple master videos historically.
+      parameters:
+        - name: app
+          in: query
+          description: Application Id of the app
+          required: true
+          type: string
+        - name: url
+          in: query
+          description: Location where the master_video is stored (ex- S3 URL).
+          required: true
+          type: string
+        - name: video_id
+          in: query
+          description: video_id associated with this master_video.
+          required: true
+          type: string
+        - name: copyright_image
+          in: query
+          description: Copyright image associated with the master_video.
+          required: false
+          type: string
+        - name: thumbnail_url
+          in: query
+          description: Thumbnail url location of the master_video.
+          required: false
+          type: string
+        - name: start_time
+          in: query
+          description: Specify the start time if the master_video is intended to be used for a clip
+          required: false
+          type: string
+        - name: end_time
+          in: query
+          description: Specify the end time if the master_video is intended to be used for a clip
+          required: false
+          type: string
+
+      tags:
+        - Create Master Videos
+      responses:
+        200:
+          description: A JSON representing the master video created
+          schema:
+            $ref: '#/definitions/MasterVideo'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /master_videos.json:
+      get:
+        summary: API to list master_videos
+        description: |
+          Returns a paginated list of master videos based on the specified parameters
+        parameters:
+          - name: app
+            in: query
+            description: Application Id of the app
+            required: true
+            type: string
+          - name: video_id
+            in: query
+            description: If a video_id is provided, only the master_videos associated with the specified video_id are returned.
+            required: false
+            type: string
+          - name: with_raw_analysis
+            in: query
+            description: If set to true, only the master_videos which have raw_analysis available are returned.
+            required: false
+            type: boolean
+          - name: sort
+            in: query
+            description: parameter to sort the results, any of the master video attributes can be specified here. To sort by meta values append meta_ to your filter name
+            required: false
+            type: string
+          - name: filter
+            in: query
+            description: specify the meta parameters to filter the results, multiple values can be specified comma separated
+            type: string
+          - name: direction
+            in: query
+            description: order of sorted results
+            required: false
+            type: boolean
+          - name: page
+            in: query
+            description: retrieve results from a specific page
+            required: false
+            type: number
+        tags:
+          - List Master Videos
+        responses:
+          200:
+            description: A JSON array of master_videos
+            schema:
+              $ref: '#/definitions/ListMasterVideosResponse'
+          default:
+            description: Unexpected error
+            schema:
+              $ref: '#/definitions/Error'
+
+  /master_videos/:master_video_id.json:
+      get:
+        summary: API to get the master video data
+        description: |
+          Returns a JSON representing the master_video associated with the Id
+        parameters:
+          - name: app
+            in: query
+            description: Application Id of the app
+            required: true
+            type: string
+          - name: master_video_id
+            in: query
+            description: The Id of the master video
+            required: true
+            type: string
+        tags:
+          - Get Master Video
+        responses:
+          200:
+            description: A JSON representing the master_video
+            schema:
+              $ref: '#/definitions/MasterVideo'
+          default:
+            description: Unexpected error
+            schema:
+              $ref: '#/definitions/Error'
+
+  /master_videos/:master_video_id/encode.json:
+    post:
+      summary: API to encode a master_video
+      description: |
+        Encodes the master_video and returns the associated batch_id. A batch Id uniquely identifies the set of encode jobs that get triggered with the encode request.
+      parameters:
+        - name: app
+          in: query
+          description: Application Id of the app
+          required: true
+          type: string
+        - name: master_video_id
+          in: query
+          description: The Id of the master video
+          required: true
+          type: string
+        - name: video_id
+          in: query
+          description: video_id of the video for which the master video is being encoded.
+          required: true
+          type: string
+        - name: type
+          in: query
+          description: specify the type of job, so that the encode gets scheduled with appropriate priority level in the media engine, allowed values are (on_air, hd_replace, library)
+          type: string
+          required: false
+        - name: media_analysis_job_id
+          in: query
+          description: Media Engine Job Id of the analysis, if already done for this video
+          type: string
+          required: false
+      tags:
+        - Encode Master Video
+      responses:
+        200:
+          description: A JSON with the batch Id of the set of encode jobs created.
+          schema:
+            $ref: '#/definitions/EncodeResponse'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    delete:
+      summary: Cancels encode jobs triggered for the specified master_video
+      description: |
+        Cancels encode jobs triggered for the mentioned master_video
+      parameters:
+        - name: app
+          in: query
+          description: Application Id of the app
+          required: true
+          type: string
+        - name: master_video_id
+          in: query
+          description: The Id of the master video
+          required: true
+          type: string
+        - name: batch_id
+          in: query
+          description: batch Id of the encode jobs
+          required: true
+          type: string
+      tags:
+        - Cancel Encode
+      responses:
+        200:
+          description: A success response
+          schema:
+            $ref: '#/definitions/OkResponse'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+    get:
+      summary: API to list the encode jobs associated with the master video
+      description: |
+        Returns the list of encode jobs associated with the master video
+      parameters:
+        - name: app
+          in: query
+          description: Application Id of the app
+          required: true
+          type: string
+        - name: master_video_id
+          in: query
+          description: The Id of the master video
+          required: true
+          type: string
+        - name: batch_id
+          in: query
+          description: If specified, only the encode jobs associated with that particular batch_id are returned
+          required: false
+          type: string
+        - name: type
+          in: query
+          description: Can have values of either latest, successful or active. latest - If specified, the latest encode jobs for all the different labels for which the master video is encoded are returned. This param doesn't have any meaning if batch_id is specified. successful - If specified, only the last successful encode jobs for all the different labels is returned. active - If specified, all the active encode jobs for all the different tables are returned
+          required: false
+          type: string
+      tags:
+        - List Encodes
+      responses:
+        200:
+          description: A JSON array of encode jobs
+          schema:
+            $ref: '#/definitions/ListEncodesResponse'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /master_videos/:master_video_id/raw_analysis.json:
+    get:
+      summary: API to get the raw analysis of a master_video
+      description: |
+        Returns the raw analysis of a master_video if available
+      parameters:
+        - name: app
+          in: query
+          description: Application Id of the app
+          required: true
+          type: string
+        - name: master_video_id
+          in: query
+          description: The Id of the master video
+          required: true
+          type: string
+      tags:
+        - Raw analysis
+      responses:
+        200:
+          description: A JSON representing raw analysis is returned
+          schema:
+            $ref: '#/definitions/RawAnalysis'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /images.json:
+    get:
+      summary: List of images
+      description: |
+        List of images associated with the video_id
+      parameters:
+        - name: app
+          in: query
+          description: Application Id of the app
+          required: true
+          type: string
+        - name: video_id
+          in: query
+          description: video Id
+          required: true
+          type: string
+      tags:
+        - List Images
+      responses:
+        200:
+          description: A JSON representing current image and all other images is returned
+          schema:
+            $ref: '#/definitions/ListImagesResponse'
+        default:
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  RawAnalysis:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Analysis ID
+      format:
+        type: object
+        description: JSON object
+      streams:
+        type: array
+        description: JSON array
+        items:
+          type: object
+
+  EncodeResponse:
+    type: object
+    properties:
+     batch_id:
+       type: string
+       description: A unique ID representing the batch of encode jobs that got triggered
+
+  ListMasterVideosResponse:
+    type: object
+    properties:
+      pages:
+        type: number
+        description: number of pages of results
+      entries:
+        type: number
+        description: total number of entries available
+      response:
+        type: array
+        items:
+         $ref: '#/definitions/MasterVideo'
+
+  ListImagesResponse:
+    type: object
+    properties:
+      current:
+        type: string
+        description: currently associated image for that video
+      all:
+        type: array
+        items:
+         type: string
+
+  ListEncodesResponse:
+    type: array
+    items:
+      $ref: '#/definitions/EncodeJob'
+
+  EncodeJob:
+    type: object
+    properties:
+      batch_id:
+        type: string
+        description: A unique ID representing the batch of encode jobs with which this encode job got triggered
+      master_video_id:
+        type: string
+        description: A unique ID representing the master video
+      output_video_url:
+        type: string
+        description: The location of the output generated
+      status:
+        type: string
+        description: The status of the encode (can be one of scheduled, downloading, processing, uploading, |
+          completed, or failed)
+      reference_id:
+        type: string
+        description: A reference ID representing the associated media_engine_job ID
+      label:
+        type: string
+        description: Encode Label
+      created_at:
+        type: string
+        description: Shows when the encode job got triggered
+      updated_at:
+        type: string
+        description: Shows when the encode job got last updated
+
+  MasterVideo:
+    type: object
+    properties:
+      url:
+        type: string
+        description: Master Video URL
+      file_size:
+        type: string
+        description: File size
+      duration_in_s:
+        type: number
+        description: duration
+      ffmpeg_format:
+        type: string
+        description: FFMPEG format
+      bitrate:
+        type: number
+        description: bitrate
+      video_id:
+        type: string
+        description: video_id
+      thumbnail_url:
+        type: string
+        description: thumbnail_url
+      file_format:
+        type: string
+        description: file format
+      timecode:
+        type: integer
+        description: timecode
+      start_time:
+        type: string
+        description: start time
+      end_time:
+        type: string
+        description: end time
+      copyright_image:
+        type: string
+        description: copyright image
+      raw_analysis_id:
+        type: string
+        description: raw_analysis_id
+
+  Error:
+    type: object
+    properties:
+      vcode:
+        type: number
+        format: int32
+      error:
+        type: string
+      details:
+        type: string
+
+  OkResponse:
+    type: object
+    properties:
+      ok:
+        type: boolean

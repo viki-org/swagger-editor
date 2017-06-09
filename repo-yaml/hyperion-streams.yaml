@@ -1,0 +1,92 @@
+paths:
+  /videos/{video_id}/streams.json:
+    get:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      summary: streams api
+      description: |
+        API to get available streams for a video.
+      parameters:
+        - name: video_id
+          in: path
+          type: string
+          required: true
+        - name: profile
+          in: query
+          description: streams profile(supported values 'baseline', 'high'). default value - high
+          required: false
+          type: string
+        - name: with_webvtt
+          in: query
+          description: streams with webvtt
+          type: boolean
+        - name: no_hd
+          in: query
+          description: flag to specify if hd streams to be served
+          type: boolean
+        - name: dt
+          in: query
+          type: string
+          description: streams with required drm types.accepts multiple values with , seperated. ex - dt2,dt3. "
+                       dt1 = fairplay
+                       dt2 = playready
+                       dt3 = widevine Modular
+                       dt4 = widevine classic"
+        - name: x-viki-connection-type
+          in: header
+          type: string
+          description: specify the network connection type. supported values wifi, mobile_data. default value - wifi
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/streams_info'
+
+  /videos/{video_id}/drm.json:
+    get:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      summary: drm license api
+      description: |
+        API to get drm license req for drm streams.
+      parameters:
+        - name: video_id
+          in: path
+          type: string
+          required: true
+        - name: dt
+          in: query
+          type: string
+          description: license for drm types. accepts multiple values with , seperated. ex - dt2,dt3
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/drm_info'
+
+definitions:
+  streams_info:
+    properties:
+      res:
+        type: object
+        properties:
+          protocol:
+            type: object
+            properties:
+              url:
+                type: string
+              drms:
+                type: array
+                items:
+                  type: string
+
+  drm_info:
+    properties:
+      drm_type_1:
+         type: string
+      drm_type_2:
+         type: string

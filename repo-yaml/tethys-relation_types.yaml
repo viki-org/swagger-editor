@@ -1,0 +1,192 @@
+---
+swagger: '2.0'
+host: api-staging.viki.net
+basePath: /v4
+securityDefinitions:
+  ClientId:
+    type: apiKey
+    name: app
+    in: query
+    description: Register your application at the **Viki application dashboard**.You
+      may use your normal Viki account or create a separate account to manage your
+      applications. You will be granted a **Client ID** and a **Client Secret**.
+  ClientSecret:
+    type: apiKey
+    name: secret
+    in: header
+  Token:
+    type: apiKey
+    name: token
+    in: query
+    description: ! '     Login a user to obtain a user access token.     **POST /v5/sessions.json**     *Params*       *
+      username       * password     Example: `{\"username\": \"tyler\",\"password\":
+      \"relyt\"}`     The returned value includes two fields: token and user. The
+      token acts like a session id, and should be included in any subsequent user-specific
+      requests via token=TOKEN. The user   field in general information about the
+      user.'
+info:
+  description: ''
+  version: '4.0'
+  title: Relation Type
+  contact:
+    name: platform@viki.com
+schemes:
+- http
+- https
+tags:
+- name: Relation Type
+  description: Manage Relation Types
+paths:
+  /relation-types.json:
+    get:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      tags:
+      - Relation Type
+      summary: Get a list of Relation Types with associated titles
+      operationId: getRelationTypes
+      produces:
+      - application/json
+      responses:
+        200:
+          description: OK
+          schema:
+            $ref: ! '#/definitions/RelationTypeListResponse'
+    post:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Relation Type
+      summary: Create a new Relation Type
+      operationId: createRelationType
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/CreateRelationType"
+      responses:
+        201:
+          description: Created
+          schema:
+            properties:
+              id:
+                type: string
+        400:
+          description: Error
+          schema:
+            $ref: ! '#/definitions/RelationTypeError'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/RelationTypeError'
+  /relation-types/{id}.json:
+    delete:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Relation Type
+      summary: delete a Relation Type specific to id
+      operationId: 
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        type: string
+        name: id
+        required: true
+      responses:
+        200:
+          description: OK
+          type: object
+          properties:
+            ok: 
+              type: boolean
+        400:
+          description: Error
+          schema:
+            $ref: ! '#/definitions/RelationTypeError'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/RelationTypeError'
+            
+definitions:
+  CreateRelationType:
+    title: RelationType
+    type: object
+    properties:
+      priority:
+        type: integer
+        default: 0
+      titles:
+        type: array
+        required: true
+        items:
+          type: object
+          properties:
+            language:
+              type: string
+              required: true
+            title:
+              type: string
+              required: true
+            title_aka:
+              type: array
+              items:
+                type: string
+            title_phonetic:
+              type: string
+            title_seo:
+              type: string
+  RelationTypeListResponse:
+    title: RelationTypeList
+    type: object
+    properties:
+      more:
+        type: boolean
+      response:
+        type: array
+        items:
+          type: object
+          properties:
+            id: 
+              type: string
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
+            priority:
+              type: integer
+            titles:
+              type: object
+              example: {'en': 'husband'}
+  RelationTypeError:
+    title: Error
+    type: object
+    properties:
+      error:
+        type: array
+        items:
+          type: string
+      vcode:
+        type: integer
+  RelationTypeNotFound:
+    title: Error
+    type: object
+    properties:
+      error:
+        type: string
+      vcode:
+        type: integer

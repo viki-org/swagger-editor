@@ -1,0 +1,80 @@
+definitions:
+  OceanusResponseOKTrue:
+    type: object
+    title: OK-True
+    properties:
+      ok:
+        type: boolean
+        description: "true"
+
+  OceanusResponseNotFound:
+    type: object
+    title: Not Found
+    properties:
+      error:
+        type: string
+        description: "not found"
+      vcode:
+        type: integer
+        description: "5404"
+
+  OceanusResponseInvalid:
+    type: object
+    title: Error
+    properties:
+      vcode:
+        type: integer
+        description: "5002"
+      error:
+        type: array
+        items:
+          type: string
+          description: The specific error which occurred.
+      details:
+        type: array
+        items:
+          type: string
+          description: Additional information relating to the error.
+
+  OceanusResponseForbidden:
+    type: object
+    title: Forbidden Operation
+    properties:
+        vcode:
+          type: integer
+          description: "5403"
+        error:
+          type: string
+          description: "forbidden"
+
+  OceanusResponseDenied:
+    type: object
+    title: Access Denied
+    properties:
+      vcode:
+        type: integer
+        description: "5401"
+      error:
+        type: string
+        description: "access denied"
+
+  OceanusResponseUserRequired:
+    type: object
+    title: User Token Required
+    properties:
+      vcode:
+        type: integer
+        description: "4500"
+      error:
+        type: string
+        description: "user required"
+
+  OceanusPagination:
+    type: object
+    properties:
+      previous:
+        type: string
+        description: URL to previous page of results. Can be null.
+      next:
+        type: string
+        description: URL to next page of results. Can be null.

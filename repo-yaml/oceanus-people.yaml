@@ -1,0 +1,108 @@
+paths:
+  "/containers/{id}/people.json":
+    parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: The ID of the container.
+    get:
+      security:
+        - ClientId: []
+      summary: Retrieves people associated with this container.
+      tags:
+        - Read
+        - People
+      responses:
+        200:
+          description: The people associated with the container, returned upon success.
+          schema:
+            type: object
+            properties:
+              pagination:
+                $ref: "#/definitions/OceanusPagination"
+              count:
+                type: integer
+                description: The amount of results on this page.
+              more:
+                type: boolean
+                description: Whether there is another page of results after this one.
+              response:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The ID of this person.
+                    category:
+                      type: string
+                      description: The role this person has.
+                      enum:
+                        - actor
+                        - director
+                        - producer
+                        - screenwriter
+                    titles:
+                      type: object
+                      description: This person's names, keyed by language.
+                    images:
+                      type: object
+                      description: URLs to images of this person, keyed by type.
+                    url:
+                      type: object
+                      properties:
+                        web:
+                          type: string
+                          description: The URL where this person can be found on Viki's site.
+                        api:
+                          type: string
+                          description: The URL where this person can be found through the Viki API.
+                    characters:
+                      type: object
+                      description: The characters this person plays, keyed by language.
+    put:
+      security:
+        - ClientId: []
+      summary: Updates the people associated with a container.
+      description: "This route completely replaces the people associated with the given container with those given in the request body - it does not support incremental updates.
+      Any existing data that is to be kept must be included in the body alongside the new or updated data."
+      tags:
+        - Update
+        - People
+      parameters:
+        - name: People Information
+          required: true
+          in: body
+          schema:
+            type: object
+            properties:
+              people:
+                type: array
+                description: The people to associate with this container.
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The ID of this person.
+                    category:
+                      type: string
+                      description: The role this person has.
+                      enum:
+                        - actor
+                        - director
+                        - producer
+                        - screenwriter
+                    characters:
+                      type: object
+                      description: The characters this person plays, keyed by language.
+      responses:
+        204:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/OceanusResponseOKTrue'
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'

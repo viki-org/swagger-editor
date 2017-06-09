@@ -1,0 +1,160 @@
+---
+swagger: '2.0'
+host: api-staging.viki.net
+basePath: /v4
+securityDefinitions:
+  ClientId:
+    type: apiKey
+    name: app
+    in: query
+    description: Register your application at the **Viki application dashboard**.You
+      may use your normal Viki account or create a separate account to manage your
+      applications. You will be granted a **Client ID** and a **Client Secret**.
+  ClientSecret:
+    type: apiKey
+    name: secret
+    in: header
+  Token:
+    type: apiKey
+    name: token
+    in: query
+    description: ! '     Login a user to obtain a user access token.     **POST /v5/sessions.json**     *Params*       *
+      username       * password     Example: `{\"username\": \"tyler\",\"password\":
+      \"relyt\"}`     The returned value includes two fields: token and user. The
+      token acts like a session id, and should be included in any subsequent user-specific
+      requests via token=TOKEN. The user   field in general information about the
+      user.'
+info:
+  description: ''
+  version: '4.0'
+  title: Subscription
+  contact:
+    name: platform@viki.com
+schemes:
+- http
+- https
+tags:
+- name: Subscription
+  description: Subscriptions allow user's to follow a specific show.
+paths:
+  /containers/{resource_id}/subscribers.json:
+    get:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      tags:
+      - Subscription
+      summary: Get a list of subscribers for a specific resource
+      operationId: getSubscribers
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        name: resource_id
+        required: true
+        type: string
+      responses:
+        201:
+          description: OK
+          schema:
+            $ref: ! '#/definitions/SubscriberListResponse'
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/SubscriberListError'
+  /users/{user_id}/subscriptions.json:
+    post:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Subscription
+      summary: Subscribe the user to a specific resource
+      operationId: createSubscription
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        type: string
+        name: user_id
+        required: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/CreateSubscription"
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              ok:
+                type: boolean
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/SubscriberListError'
+  /users/{user_id}/subscriptions/{resource_id}.json:
+    delete:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Subscription
+      summary: Delete a user's subscription
+      operationId: deleteSubscription
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        type: string
+        name: user_id
+        required: true
+      - in: path
+        name: resource_id
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              ok:
+                type: boolean
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/SubscriberListError'
+definitions:
+  CreateSubscription:
+    title: Subscription
+    type: object
+    properties:
+      resource_id:
+        type: string
+  SubscriberListResponse:
+    title: SubscriberList
+    type: object
+    properties:
+      count:
+        type: integer
+      more:
+        type: boolean
+      response:
+        type: array
+        items:
+          type: string
+  SubscriberListError:
+    title: Error
+    type: object
+    properties:
+      error:
+        type: array
+        items:
+          type: string
+      vcode:
+        type: integer

@@ -1,0 +1,99 @@
+paths:
+  "/artists/{ID}/casts.json":
+    parameters:
+      - name: ID
+        required: true
+        in: path
+        type: string
+        description: The ID of the artist.
+        pattern: ^\d+c$
+    get:
+      security:
+        - ClientId: []
+      tags:
+        - Read
+        - Artists
+      summary: Retrieves cast information for an artist.
+      description: "This route provides information on the routes that an artist
+      has played."
+      responses:
+        200:
+          description: The artist's roles, returned on success.
+          schema:
+            type: object
+            properties:
+              pagination:
+                $ref: "#/definitions/OceanusPagination"
+              count:
+                type: integer
+                description: The amount of results on this page.
+              more:
+                type: boolean
+                description: Whether there is another page of results after this one
+              response:
+                type: array
+                items:
+                  title: Role Information
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                      description: The ID of the container this artist has a role in.
+                    artist_id:
+                      type: string
+                      description: The ID of the artist.
+                    category:
+                      type: string
+                      description: The role this artist has.
+                    type:
+                      type: string
+                      description: The type of container this is.
+                    flags:
+                      type: object
+                      properties:
+                        licensed:
+                          description: Whether the container is a licensed (as opposed to fan) channel.
+                          type: boolean
+                        hosted:
+                          description: Whether the container's videos are hosted by Viki.
+                          type: boolean
+                        on_air:
+                          description: Whether the container's content is currently on-air.
+                          type: boolean
+                        state:
+                          type: string
+                          description: The current state of the container.
+                          enum:
+                            - normal
+                            - pending
+                            - delete
+                        adult:
+                          description: Whether the container contains content that isn't family friendly.
+                          type: boolean
+                    titles:
+                      type: object
+                      description: The container's titles, keyed by language.
+                    images:
+                      type: object
+                      properties:
+                    poster:
+                      type: object
+                      description: The poster image of the container.
+                      properties:
+                        url:
+                          type: string
+                          description: The URL of the image.
+                    character:
+                      type: object
+                      description: "The name of the character this artist plays,
+                      keyed by language."
+                    url:
+                      type: object
+                      description: URLs for the container.
+                      properties:
+                        web:
+                          type: string
+                          description: The URL where this container can be found on viki.com.
+                        api:
+                          type: string
+                        description: The API URL where this container's full information can be found.

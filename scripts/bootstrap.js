@@ -55,6 +55,9 @@ $(function() {
       $templateCache.put('templates/open-examples.html',
         require('templates/open-examples.html'));
 
+      $templateCache.put('templates/open-repos-api.html',
+        require('templates/open-repos-api.html'));
+
       $templateCache.put('templates/operation.html',
         require('templates/operation.html'));
 

@@ -1,0 +1,261 @@
+paths:
+  "/{resourceType}/{ID}/descriptions.json":
+    parameters:
+      - name: resourceType
+        type: string
+        required: true
+        in: path
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+      - name: ID
+        type: string
+        required: true
+        in: path
+        description: The ID of the resource.
+        pattern: ^\d+[cv]$
+    get:
+      tags:
+        - Read
+        - Descriptions
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      parameters:
+        - name: all_sources
+          type: integer
+          in: query
+          pattern: ^[01]?$
+          description: "1 if external descriptions should be returned. The
+          calling app must have `manage` permissions and use a signed request
+          if this parameter is specified; otherwise, it will be ignored."
+      summary: Retrieves descriptions for a container or video in all languages.
+      responses:
+        200:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/DescriptionAllDescriptions'
+    post:
+      tags:
+        - Create
+        - Update
+        - Descriptions
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      summary: Creates or updates description(s) for a resource in a given language.
+      description: "This route is used to create or update descriptions for a resource in a given language.
+      Descriptions can be created from any source, but the calling app must have manage permissions and use a signed request
+      for non-Viki sources."
+      parameters:
+        - name: Descriptions
+          in: body
+          description: The description(s) to be created.
+          schema:
+            required:
+              - language_code
+              - description
+            properties:
+              language_code:
+                type: string
+                description: The language of these descriptions.
+              source:
+                type: string
+                description: (Optional) The source of these descriptions. Defaults to 'viki'; the calling app must have manage permissions and use a signed request if another source is specified.
+              description:
+                type: string
+                description: The description of this resource.
+              description_seo:
+                type: string
+                description: (Optional) SEO-friendly descriptions of this resource.
+      responses:
+        201:
+          description: The new or updated descriptions, returned upon success.
+          schema:
+            $ref: '#/definitions/OceanusResponseOKTrue'
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+
+  "/{resourceType}/{ID}/description_seo.json":
+    parameters:
+      - name: resourceType
+        type: string
+        required: true
+        in: path
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+      - name: ID
+        type: string
+        required: true
+        in: path
+        description: The ID of the resource.
+        pattern: ^\d+[cv]$
+    get:
+      tags:
+        - Read
+        - Descriptions
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      parameters:
+        - name: all_sources
+          type: integer
+          in: query
+          pattern: ^[01]?$
+          description: "1 if external descriptions should be returned. The
+          calling app must have `manage` permissions and use a signed request
+          if this parameter is specified; otherwise, it will be ignored."
+      summary: Retrieves descriptions for a container or video in all languages.
+      responses:
+        200:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/DescriptionSEODescriptions'
+
+  "/{resourceType}/{ID}/descriptions/{language}.json":
+    parameters:
+      - name: resourceType
+        type: string
+        required: true
+        in: path
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+      - name: ID
+        type: string
+        required: true
+        in: path
+        description: The ID of the resource.
+        pattern: ^\d+[cv]$
+      - name: language
+        type: string
+        required: true
+        in: path
+        description: The language of the descriptions.
+    get:
+      tags:
+        - Read
+        - Descriptions
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      parameters:
+        - name: all_sources
+          type: integer
+          in: query
+          pattern: ^[01]?$
+          description: "1 if external descriptions should be returned. The
+          calling app must have `manage` permissions and use a signed request
+          if this parameter is specified; otherwise, it will be ignored."
+      summary: Retrieves descriptions for a container or video in a particular language.
+      responses:
+        200:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/DescriptionAllDescriptions'
+    delete:
+      tags:
+        - Delete
+        - Descriptions
+      security:
+        - ClientId: []
+      summary: Deletes all descriptions for a particular resource in a given language.
+      description: "This route deletes both regular and SEO descriptions (if they are present)
+      with source 'viki' in a given language for a particular resource."
+      responses:
+        204:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/OceanusResponseOKTrue'
+        404:
+          description: Returned if no description exists for the resource in the given language.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+
+  "/{resourceType}/{ID}/description_seo/{language}.json":
+    parameters:
+      - name: resourceType
+        type: string
+        required: true
+        in: path
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+      - name: ID
+        type: string
+        required: true
+        in: path
+        description: The ID of the resource.
+        pattern: ^\d+[cv]$
+      - name: language
+        type: string
+        required: true
+        in: path
+        description: The language of the descriptions.
+    get:
+      tags:
+        - Read
+        - Descriptions
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      parameters:
+        - name: all_sources
+          type: integer
+          in: query
+          pattern: ^[01]?$
+          description: "1 if external descriptions should be returned. The
+          calling app must have `manage` permissions and use a signed request
+          if this parameter is specified; otherwise, it will be ignored."
+      summary: Retrieves SEO-friendly descriptions for a container or video in a particular language.
+      responses:
+        200:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/DescriptionSEODescriptions'
+    delete:
+      tags:
+        - Delete
+        - Descriptions
+      security:
+        - ClientId: []
+      summary: Deletes all SEO descriptions for a particular resource in a given language.
+      description: "This route deletes SEO descriptions with source 'viki' in a given language for a particular resource."
+      responses:
+        204:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/OceanusResponseOKTrue'
+        404:
+          description: Returned if no SEO description exists for the resource in the given language.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+
+definitions:
+  DescriptionAllDescriptions:
+    type: object
+    title: Descriptions
+    properties:
+      description:
+        type: object
+        description: The resource's descriptions, keyed by source, then by language.
+      description_seo:
+        type: object
+        description: The resource's SEO-friendly descriptions, keyed by source, then by language.
+
+  DescriptionSEODescriptions:
+    type: object
+    title: SEO Descriptions
+    properties:
+      description_seo:
+        type: object
+        description: The resource's SEO-friendly descriptions, keyed by source, then by language.

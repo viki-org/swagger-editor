@@ -1,0 +1,29 @@
+definitions:
+  HyperionBlockingInfo:
+    type: object
+    properties:
+      blocked:
+        type: boolean
+        description: Whether this content is currently blocked for the calling app and user.
+      blocking:
+        type: object
+        properties:
+          geo:
+            type: boolean
+            description: Whether this content is currently geo-blocked. Ignore if the `upcoming` flag is true.
+          paywall:
+            type: boolean
+            description: Whether this content is currently behind a paywall that the user does not have.
+          upcoming:
+            type: boolean
+            description: Whether this content is still upcoming for the calling app/country context.
+
+  HyperionErrorNotFound:
+    type: object
+    properties:
+      error:
+        type: string
+        description: not found
+      vcode:
+        type: integer
+        description: 404

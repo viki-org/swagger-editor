@@ -1,0 +1,517 @@
+paths:
+  "/{resourceType}/{resourceId}/titles.json":
+    parameters:
+      - name: resourceType
+        required: true
+        in: path
+        type: string
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+          - person
+
+      - name: resourceId
+        required: true
+        in: path
+        type: string
+        description: The ID of the resource.
+
+    get:
+      tags:
+        - Read
+        - Titles
+      summary: Gets all titles for a given resource.
+      security:
+        - ClientId: []
+      responses:
+        200:
+          description: The titles belonging to the given resource.
+          schema:
+            $ref: '#/definitions/TitleTitles'
+        400:
+          description: Returned on any error.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+
+    post:
+      tags:
+        - Create
+        - Update
+        - Titles
+        - Signed Request Required
+      summary: Creates or updates title(s) for a resource.
+      description: "This route is used to create or update the titles of a resource. **Updates are incremental**: only fields which are provided in the request body will be updated, and only if they are not blank."
+      parameters:
+        - name: titles
+          required: true
+          in: body
+          description: The title(s) to be created.
+          schema:
+            $ref: '#/definitions/TitleTitle'
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      responses:
+        201:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/OceanusResponseOKTrue"
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+
+  "/{resourceType}/{resourceId}/titles/{language}.json":
+    parameters:
+      - name: resourceType
+        required: true
+        in: path
+        type: string
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+          - person
+
+      - name: resourceId
+        required: true
+        in: path
+        type: string
+        description: The ID of the resource.
+
+      - name: language
+        required: true
+        in: path
+        type: string
+        description: The language code of the titles.
+
+    get:
+      description: Retrieves all titles in a specific language for a given resource.
+      tags:
+        - Titles
+        - Read
+      security:
+        - ClientId: []
+      responses:
+        200:
+          description: Returned on success.
+          schema:
+            $ref: '#/definitions/TitleLanguageSpecificTitles'
+
+    delete:
+      description: Deletes the main title in the specified language for a given resource.
+      tags:
+        - Titles
+        - Delete
+        - Signed Request Required
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      responses:
+        204:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/OceanusResponseOKTrue"
+        404:
+          description: Returned if the resource has no title in the given language.
+          schema:
+            $ref: "#/definitions/OceanusResponseNotFound"
+
+  "/{resourceType}/{resourceId}/title_seo.json":
+    parameters:
+      - name: resourceType
+        required: true
+        in: path
+        type: string
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+          - person
+
+      - name: resourceId
+        required: true
+        in: path
+        type: string
+        description: The ID of the resource.
+
+    get:
+      description: Retrieves all SEO titles for a given resource.
+      tags:
+        - Titles
+        - Read
+      security:
+        - ClientId: []
+      responses:
+        200:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/TitleTitleSEOResponse"
+
+  "/{resourceType}/{resourceId}/title_seo/{language}.json":
+    parameters:
+      - name: resourceType
+        required: true
+        in: path
+        type: string
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+          - person
+
+      - name: resourceId
+        required: true
+        in: path
+        type: string
+        description: The ID of the resource.
+
+      - name: language
+        required: true
+        in: path
+        type: string
+        description: The language code of the title.
+
+    get:
+      description: Retrieves a resource's SEO title in a specified language.
+      tags:
+        - Titles
+        - Read
+      security:
+        - ClientId: []
+      responses:
+        200:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/TitleLanguageSEOTitleResponse"
+
+    delete:
+      description: Deletes the resource's SEO title in a particular language.
+      tags:
+        - Titles
+        - Delete
+        - Signed Request Required
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      responses:
+        204:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/OceanusResponseOKTrue"
+        404:
+          description: Returned if the resource has no title in the given language.
+          schema:
+            $ref: "#/definitions/OceanusResponseNotFound"
+
+  "/{resourceType}/{resourceId}/title_aka.json":
+    parameters:
+      - name: resourceType
+        required: true
+        in: path
+        type: string
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+          - person
+
+      - name: resourceId
+        required: true
+        in: path
+        type: string
+        description: The ID of the resource.
+
+    get:
+      description: Retrieves alternative titles that a resource is known by.
+      tags:
+        - Titles
+        - Read
+      security:
+        - ClientId: []
+      responses:
+        200:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/TitleAKATitleResponse"
+
+  "/{resourceType}/{resourceId}/title_aka/{language}.json":
+    parameters:
+      - name: resourceType
+        required: true
+        in: path
+        type: string
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+          - person
+
+      - name: resourceId
+        required: true
+        in: path
+        type: string
+        description: The ID of the resource.
+
+      - name: language
+        required: true
+        in: path
+        type: string
+        description: The language code of the title.
+
+    get:
+      description: Retrieves alternative titles that a resource is known by in a given language.
+      tags:
+        - Titles
+        - Read
+      security:
+        - ClientId: []
+      responses:
+        200:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/TitleLanguageAKATitleResponse"
+
+    delete:
+      description: Deletes a resource's alternative titles in a given language.
+      tags:
+        - Titles
+        - Delete
+        - Signed Request Required
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      responses:
+        204:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/OceanusResponseOKTrue"
+        404:
+          description: Returned if the resource has no title in the given language.
+          schema:
+            $ref: "#/definitions/OceanusResponseNotFound"
+
+  "/{resourceType}/{resourceId}/title_phonetic.json":
+    parameters:
+      - name: resourceType
+        required: true
+        in: path
+        type: string
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+          - person
+
+      - name: resourceId
+        required: true
+        in: path
+        type: string
+        description: The ID of the resource.
+
+    get:
+      description: Retrieves phonetic titles for a resource.
+      tags:
+        - Titles
+        - Read
+      security:
+        - ClientId: []
+      responses:
+        200:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/TitlePhoneticTitleResponse"
+
+  "/{resourceType}/{resourceId}/title_phonetic/{language}.json":
+    parameters:
+      - name: resourceType
+        required: true
+        in: path
+        type: string
+        description: The type of resource.
+        enum:
+          - containers
+          - videos
+          - person
+
+      - name: resourceId
+        required: true
+        in: path
+        type: string
+        description: The ID of the resource.
+
+      - name: language
+        required: true
+        in: path
+        type: string
+        description: The language code of the title.
+
+    get:
+      description: Retrieves phonetic titles for a resource in a given language.
+      tags:
+        - Titles
+        - Read
+      security:
+        - ClientId: []
+      responses:
+        200:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/TitleLanguagePhoneticTitleResponse"
+
+    delete:
+      description: Deletes a resource's phonetic title in a given language.
+      tags:
+        - Titles
+        - Delete
+        - Signed Request Required
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      responses:
+        204:
+          description: Returned on success.
+          schema:
+            $ref: "#/definitions/OceanusResponseOKTrue"
+        404:
+          description: Returned if the resource has no title in the given language.
+          schema:
+            $ref: "#/definitions/OceanusResponseNotFound"
+
+definitions:
+  TitleTitles:
+    type: object
+    title: Titles
+    properties:
+      title:
+        type: object
+        description: Titles, keyed by language.
+      title_phonetic:
+        type: object
+        description: Phonetic titles, keyed by language.
+      title_aka:
+        type: object
+        description: Arrays of alternative titles the resource is known by, keyed by language.
+      title_seo:
+        type: object
+        description: SEO titles, keyed by language.
+
+  TitleTitle:
+    type: object
+    title: Title
+    properties:
+      language_code:
+        type: string
+        description: The language code of these titles.
+      title:
+        type: string
+        description: The main title of this resource.
+      title_aka:
+        type: array
+        description: Alternate titles this resource is known by.
+        items:
+          type: string
+      title_phonetic:
+        type: string
+        description: The phonetic title of this resource.
+      title_seo:
+        type: string
+        description: The SEO title of this resource.
+    required:
+      - language_code
+
+  TitleLanguageSpecificTitles:
+    type: object
+    title: Language-specific Titles
+    properties:
+      resource_id:
+        type: string
+        description: The ID of the resource these titles belong to.
+      language:
+        type: string
+        description: The language code of these titles.
+      title:
+        type: string
+        description: The title of the resource.
+      created_at:
+        type: string
+        description: The date and time these titles were created at.
+      updated_at:
+        type: string
+        description: The date and time these titles were updated at.
+      title_aka:
+        type: array
+        description: Alternate titles this resource is known by.
+        items:
+          type: string
+      title_phonetic:
+        type: string
+        description: The phonetic title of this resource.
+      title_seo:
+        type: array
+        description: SEO titles for this resource.
+        items:
+          type: string
+      id:
+        type: integer
+        description: The ID of these titles.
+
+  TitleTitleSEOResponse:
+    type: object
+    title: SEO Titles
+    properties:
+      title_seo:
+        type: object
+        description: SEO titles, keyed by language.
+
+  TitleLanguageSEOTitleResponse:
+    type: object
+    title: Language-specific SEO Title
+    properties:
+      title_seo:
+        type: string
+        description: The SEO title of the resource in the given language.
+      language:
+        type: string
+        description: The language code of the SEO title.
+
+  TitleAKATitleResponse:
+    type: object
+    title: AKA Titles
+    properties:
+      title_aka:
+        type: object
+        description: Arrays of alternative titles this resource is known by, keyed by language.
+
+  TitleLanguageAKATitleResponse:
+    type: object
+    title: Language-specific AKA Title
+    properties:
+      title_seo:
+        type: array
+        items:
+          - type: string
+          - description: Alternative titles for the resource in the given language.
+      language:
+        type: string
+        description: The language code of the alternative titles.
+
+  TitlePhoneticTitleResponse:
+    type: object
+    title: Phonetic Titles
+    properties:
+      title_phonetic:
+        type: object
+        description: Phonetic titles for the resource, keyed by language.
+
+  TitleLanguagePhoneticTitleResponse:
+    type: object
+    title: Language-specific Phonetic Title
+    properties:
+      title_phonetic:
+        type: object
+        description: The phonetic title for the resource in the given language.
+      language:
+        type: string
+        description: The language code of the phonetic titles.

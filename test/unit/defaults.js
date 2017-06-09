@@ -8,6 +8,7 @@ SwaggerEditor.config(function($provide) {
   $provide.constant('defaults', {
     disableCodeGen: true,
     examplesFolder: 'spec-files/',
+    repoyamlFolder: 'repo-yaml/',
     editorOptions: {},
     exampleFiles: [
       'default.yaml',
@@ -18,6 +19,9 @@ SwaggerEditor.config(function($provide) {
       'petstore_full.yaml',
       'basic-auth.yaml',
       'security.yaml'
+    ],
+    repoyamlFiles: [
+      'users-users.yaml',
     ],
     autocompleteExtension: {},
     useBackendForStorage: false,

@@ -12,6 +12,7 @@
   },
   "disableCodeGen": false,
   "examplesFolder": "spec-files/",
+  "repoyamlFolder": "repo-yaml/",
   "editorOptions": {
     "theme": "ace/theme/atom_dark"
   },
@@ -26,6 +27,9 @@
     "security.yaml",
     "instagram.yaml",
     "twitter.yaml"
+  ],
+  "repoyamlFiles": [
+    "users-users.yaml"
   ],
   "autocompleteExtension": {},
   "useBackendForStorage": false,

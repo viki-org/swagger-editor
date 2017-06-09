@@ -1,0 +1,51 @@
+paths:
+  "/list_aliases.json":
+    post:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      tags:
+        - Create
+        - List Aliases
+        - Signed Request Required
+      summary: Creates a list alias.
+      description: "This route allows apps with `manage` permissions
+      to create aliases for lists."
+      parameters:
+        - name: List Alias Properties
+          required: true
+          in: body
+          schema:
+            $ref: "#/definitions/ListAliasDBModel"
+      responses:
+        201:
+          description: The new alias, returned upon success.
+          schema:
+            $ref: "#/definitions/ListAliasDBModel"
+        400:
+          description: Returned when any required parameter is missing.
+          schema:
+            $ref: "#/definitions/OceanusResponseInvalid"
+        401:
+          description: "Returned if the calling app does not have `manage`
+          permissions, or if the request is not signed."
+          schema:
+            $ref: "#/definitions/OceanusResponseDenied"
+
+definitions:
+  ListAliasDBModel:
+    title: List Alias
+    type: object
+    properties:
+      list_id:
+        type: string
+        description: The ID of the list the alias is for.
+        pattern: ^\d+l$
+      application_id:
+        type: string
+        description: The ID of the application the alias is for.
+        pattern: ^\d+a$
+      name:
+        type: string
+        description: The name of the alias.
+

@@ -102,5 +102,11 @@ Examples
 #### `examplesFolder`
 Path to a directory with examples specs. Note that this string will be used in between two other URL segments so you always need the trailing and leading slashes
 
+#### `repoyamlFolder`
+Path to a directory with repositories yaml files. Note that this string will be used in between two other URL segments so you always need the trailing and leading slashes
+
 #### `exampleFiles`
 Array of strings. List files in ``exampleFolder`` that contain example specs. The first file is used as the default document for the editor when it is opened.
+
+#### `repoyamlFiles`
+Array of strings. List files in ``repoyamlFolder`` that contain example specs. The first file is used as the default document for the editor when it is opened.

@@ -1,0 +1,85 @@
+paths:
+  "/containers/{id}/covers.json":
+    parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: The ID of the container.
+    post:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      summary: Updates the HTML cover page for a container.
+      tags:
+        - Covers
+        - Update
+      description: "This route allows `manage` apps or channel managers or moderators
+      to update HTML cover pages for a container.
+
+      Requests must be signed if the calling app's permissions are to be used; otherwise,
+      a user token for a channel manager or moderator must be included."
+      parameters:
+        - name: Cover Information
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              language:
+                type: string
+                description: The language this cover page is in.
+              html:
+                type: string
+                description: The HTML content of the cover page.
+      responses:
+        201:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/OceanusResponseOKTrue'
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+        401:
+          description: "Returned when the calling app does not have manage permissions
+          (or did not provide a signed request), or if the calling user is not a channel
+          manager or moderator."
+          schema:
+            $ref: '#/definitions/OceanusResponseDenied'
+  "/containers/{id}/covers/{language}.json":
+    parameters:
+      - name: id
+        type: string
+        in: path
+        required: true
+        description: The ID of the container.
+      - name: language
+        type: string
+        in: path
+        required: true
+        description: The language of the cover page.
+    get:
+      security:
+        - ClientId: []
+      summary: Retrieves the HTML cover page for a container.
+      tags:
+        - Covers
+        - Read
+      description: "This route allows apps to retrieve the HTML cover page for a container,
+      in a specified language. Note that although the cover page is HTML, it is returned as a
+      string field in a JSON response body."
+      responses:
+        200:
+          description: Returned upon success.
+          schema:
+            type: object
+            properties:
+              html:
+                type: string
+                description: The HTML cover page, in the requested language.
+        404:
+          description: Returned if no cover page could be found in the given language.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'

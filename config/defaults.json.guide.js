@@ -56,6 +56,14 @@ var defaults = {
   */
   examplesFolder: 'spec-files/',
 
+
+  /*
+   * Folder that yaml files pulled from different repositories are copied to
+   * Note that this string will be used in between two other url segments
+   * so you always need the trailing and leading slashes
+  */
+  repoyamlFolder: 'repo-yaml/',
+
   /*
    * Ace editor options. This object will overload existing editor options.
    * See all possible options here: http://ace.c9.io/#nav=api&api=ace
@@ -74,6 +82,14 @@ var defaults = {
     'petstore_full.yaml',
     'basic-auth.yaml',
     'security.yaml'
+  ],
+
+    /*
+   * List of repository yaml files to show to user to pick from. The URL to fetch each
+   * example is a combination of `repoyamlFolder` and file name
+  */
+  repoyamlFiles: [
+    'users-users.yaml'
   ],
 
   /*

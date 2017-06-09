@@ -1,0 +1,400 @@
+paths:
+  "/containers.json":
+    post:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      tags:
+        - Create
+        - Containers
+        - User Token Required
+      summary: Creates an unlicensed container.
+      description: This route creates a new, unlicensed container. It is incapable of creating a licensed container, and hence can only be used for fan channels.
+
+        A user token must always be included for requests to this route - the user it belongs to will be set as the channel manager.
+      parameters:
+        - name: Container Properties
+          required: true
+          in: body
+          schema:
+            type: object
+            required:
+              - type
+              - origin_country
+              - origin_language
+              - english_title
+              - english_description
+              - poster_image
+
+            properties:
+              type:
+                description: The type of the container.
+                type: string
+                enum:
+                  - series
+                  - film
+                  - news
+                  - artist
+
+              origin_country:
+                description: The country code of the container's origin country.
+                type: string
+
+              origin_language:
+                type: string
+                description: The language the container's content is in.
+
+              broadcast_network:
+                description: The broadcast network of the container.
+                type: string
+
+              broadcast_from:
+                description: The start of the broadcast period for the container.
+                type: string
+                format: ISO8601 Date
+
+              broadcast_to:
+                description: The end of the broadcast period for the container.
+                type: string
+                format: ISO8601 Date
+
+              poster_image:
+                description: Image to be used as the container's poster.
+                type: string
+                format: Base64-encoded
+
+              english_title:
+                description: The title of the container, in English.
+                type: string
+
+              english_description:
+                description: A description of the container, in English.
+                type: string
+
+              origin_title:
+                description: The title of the container in its native language. Required if `origin_language` is not English (`en`).
+                type: string
+      responses:
+        201:
+          description: The new container, returned upon success.
+          schema:
+            $ref: '#/definitions/ContainerDBModel'
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+
+  "/containers/{id}.json":
+    parameters:
+      - name: id
+        required: true
+        in: path
+        type: string
+        description: The ID of the container.
+        pattern: ^\d+c$
+
+    put:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      tags:
+        - Update
+        - Containers
+        - Signed Request Required
+      summary: Updates a container.
+      description: This route allows several attributes of a container to be updated. It's mostly intended for use with fan channels, but can be used for licensed containers as well.
+
+
+        Note that the calling app must have `manage` permissions in order to be able to edit licensed containers in full - apps without this permission must include a user token belonging to a channel manager, and may only make changes to the channel's team name.
+      parameters:
+        - name: Container Properties
+          required: false
+          in: body
+          schema:
+            type: object
+            properties:
+              broadcast_network:
+                description: The broadcast network of the container.
+                type: string
+
+              broadcast_from:
+                description: The start of the broadcast period for the container.
+                type: string
+                format: ISO8601 Date
+
+              broadcast_to:
+                description: The end of the broadcast period for the container.
+                type: string
+                format: ISO8601 Date
+
+              origin_country:
+                description: The country code of the container's origin country.
+                type: string
+
+              team_name:
+                description: The name of the community team responsible for the container.
+                type: string
+
+              poster_image:
+                description: Image to be used as the container's poster.
+                type: string
+                format: Base64-encoded
+
+              genres_ids:
+                description: IDs of all the genres the container belongs to.
+                type: array
+                items:
+                  type: string
+                  pattern: ^\d+g$
+      responses:
+        200:
+          description: The updated container, returned upon success.
+          schema:
+            $ref: '#/definitions/ContainerDBModel'
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+        401:
+          description: Returned if the calling user/app is not permitted to edit this container, or the container is licensed, the app doesn't have `manage` permissions, and `team_name` is not present in the request body.
+          schema:
+            $ref: '#/definitions/OceanusResponseDenied'
+        404:
+          description: Returned if the container does not exist.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+    delete:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      tags:
+        - Delete
+        - Containers
+        - Signed Request Required
+      summary: Deletes a container.
+      description: This route allows channel managers or `manage` apps to delete pending containers.
+
+
+        Note that an app must have `manage` permissions in order to delete licensed containers; channel managers are only allowed to delete containers for fan channels.
+      responses:
+        204:
+          description: Returned on success.
+          schema:
+            $ref: '#/definitions/OceanusResponseOKTrue'
+        401:
+          description: Returned if the calling user is not permitted to delete this container, or the container is licensed and the calling app doesn't have `manage` permissions.
+          schema:
+            $ref: "#/definitions/OceanusResponseDenied"
+        403:
+          description: Returned if the container is not pending.
+          schema:
+            $ref: '#/definitions/OceanusResponseForbidden'
+        404:
+          description: Returned if the container does not exist.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+  "/containers/{id}/seo.json":
+    parameters:
+      - name: id
+        required: true
+        in: path
+        type: string
+        description: The ID of the container.
+        pattern: ^\d+c$
+
+    get:
+      security:
+        - ClientId: []
+      tags:
+        - Read
+        - Containers
+      summary: Returns SEO titles and descriptions for the container in all languages they're available in.
+      description: This route retrieves the SEO-friendly titles and descriptions for the container, in all languages they are available in.
+      responses:
+        200:
+          description: The SEO titles and description for the container.
+          schema:
+            type: object
+            properties:
+              title:
+                type: object
+                description: SEO titles for the container, keyed by language.
+              description:
+                type: object
+                description: SEO descriptions for the container, keyed by language.
+        404:
+          description: Returned if the container doesn't exist, or if it has no SEO titles or descriptions.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+  "/containers/{id}/summary.json":
+    parameters:
+      - name: id
+        required: true
+        in: path
+        type: string
+        description: The ID of the container.
+        pattern: ^\d+c$
+
+    get:
+      security:
+        - ClientId: []
+      tags:
+        - Read
+        - Containers
+      summary: Returns a summary of the container's properties.
+      responses:
+        200:
+          description: A summary of the container's properties.
+          schema:
+            type: object
+            properties:
+              id:
+                type: string
+                description: The container's ID.
+              type:
+                type: string
+                description: The type of container.
+                enum:
+                  - artist
+                  - film
+                  - news
+                  - series
+              flags:
+                type: object
+                properties:
+                  licensed:
+                    type: boolean
+                    description: Whether or not the container is licensed.
+                  hosted:
+                    type: boolean
+                    description: Whether or not the videos within this container are hosted by Viki itself.
+                  on_air:
+                    type: boolean
+                    description: Whether or not the container's content is currently on air.
+                  state:
+                    type: string
+                    description: The state of this container.
+                    enum:
+                      - normal
+                      - pending
+                      - deleted
+                  adult:
+                    type: boolean
+                    description: Whether or not this container contains content that isn't family-friendly.
+              titles:
+                type: object
+                description: The titles of this container, keyed by language.
+              images:
+                type: object
+                description: Any images associated with this container.
+                properties:
+                  poster:
+                    type: object
+                    description: The poster image of this container.
+                    properties:
+                      url:
+                        type: string
+                        description: The URL of the image.
+              character:
+                type: object
+                description: Information on the characters in this container's content, keyed by language.
+              url:
+                type: object
+                description: URLs for the container.
+                properties:
+                  web:
+                    type: string
+                    description: The URL where this container can be found on viki.com.
+                  api:
+                    type: string
+                    description: The API URL where this container's full information can be found.
+        404:
+          description: Returned if the container doesn't exist.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+definitions:
+  ContainerDBModel:
+    title: Container
+    type: object
+    properties:
+      id:
+        type: string
+        description: The ID of the container.
+      type:
+        type: string
+        description: The type of the container.
+        enum:
+          - artist
+          - film
+          - news
+          - series
+      state:
+        type: string
+        description: The current state of the container.
+        enum:
+          - normal
+          - pending
+          - deleted
+      origin_country:
+        type: string
+        description: The country of origin of the container.
+      origin_language:
+        type: string
+        description: The language the container's content is in.
+      team_name:
+        type: string
+        description: The name of the community team responsible for the container.
+      broadcast_from:
+        description: The start of the broadcast period for the container.
+        type: string
+        format: date
+      broadcast_to:
+        description: The end of the broadcast period for the container.
+        type: string
+        format: date
+      broadcast_network:
+        description: The broadcast network of the container.
+        type: string
+      rating:
+        description: The content rating of the container.
+        type: string
+      adult:
+        description: Whether this container contains content that isn't family friendly.
+        type: boolean
+      licensed:
+        description: Whether this container is a licensed (as opposed to fan) channel.
+        type: boolean
+      hosted:
+        description: Whether this container's videos are hosted by Viki.
+        type: boolean
+      embeddable:
+        description: Whether this container can have its content embedded on other sites.
+        type: boolean
+      exclusive:
+        description: Countries in which this container's content is exclusively available on Viki.
+        type: array
+        items:
+          type: string
+      exclusive_end_date:
+        description: The date on which this content's exclusivity period ends.
+        type: string
+        format: date
+      on_air:
+        description: Whether this container's content is currently on-air.
+        type: boolean
+      season_number:
+        description: The season of the show this container is for.
+        type: integer
+      prev_season:
+        description: The number of the season preceding this container's.
+        type: integer
+      next_season:
+        description: The number of the season after this container's.
+        type: integer

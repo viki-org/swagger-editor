@@ -1,0 +1,1757 @@
+swagger: '2.0'
+
+info:
+  version: "1.0.12"
+  title: vikipass
+
+schemes:
+  - https
+
+consumes:
+  - application/json
+
+produces:
+  - application/json
+
+paths:
+
+  # TODO:
+  #                                  GET    /v4/plan_subscribers/users.json
+  #                                  POST   /v4/plan_subscribers/merge.json
+  #                        subscribe POST   /v4/users/:user_id/plans/:plan_id/subscribe.json
+  #                                  POST   /v5/ios_subscriptions.json
+
+  # GET    /v5/users/:user_id/account.json
+  '/v5/users/{id}/account.json':
+    parameters:
+      - name: id
+        description: user id
+        in: path
+        type: string
+        required: true
+    get:
+      description: 'get user vikipass payment acount infomation'
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/VikipassUseraccount'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # GET    /v5/users/:user_id/account/default_card.json
+  '/v5/users/{id}/account/default_card.json':
+    parameters:
+      - name: id
+        description: user id
+        in: path
+        type: string
+        required: true
+    get:
+      description: 'get user vikipass payment acount default card infomation'
+      parameters:
+        - name: payment_provider
+          in: query
+          required: true
+          type: string
+          enum:
+            - 'stripe'
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/PaymentProviderCard'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # PATCH  /v5/users/:user_id/account/update_card.json
+  # PUT    /v5/users/:user_id/account/update_card.json
+  '/v5/users/{id}/account/update_card.json':
+    parameters:
+      - name: id
+        description: user id
+        in: path
+        type: string
+        required: true
+    put:
+      description: 'update user payment provider default card'
+      parameters:
+        - name: payment_provider
+          in: query
+          required: true
+          type: string
+          enum:
+            - 'stripe'
+        - name: customer_info
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              stripe_token:
+                type: string
+            required:
+              - stripe_token
+      responses:
+        201:
+          description: succeed
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+    patch:
+      description: 'update user payment provider default card'
+      parameters:
+        - name: payment_provider
+          in: query
+          required: true
+          type: string
+          enum:
+            - 'stripe'
+        - name: customer_info
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              stripe_token:
+                type: string
+            required:
+              - stripe_token
+      responses:
+        201:
+          description: succeed
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # PUT    /v5/users/:user_id/account/delete_card.json
+  '/v5/users/{id}/account/delete_card.json':
+    parameters:
+      - name: id
+        description: user id
+        in: path
+        type: string
+        required: true
+    put:
+      description: 'update user payment provider default card'
+      parameters:
+        - name: payment_provider
+          in: query
+          required: true
+          type: string
+          enum:
+            - 'stripe'
+        - name: card_id
+          in: query
+          required: true
+          type: string
+      responses:
+        200:
+          description: 'succeed'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+        404:
+          description: card not found
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # GET    /v5/viki_coupons.:format
+  # POST   /v5/viki_coupons.:format
+  '/v5/viki_coupons.json':
+    get:
+      responses:
+        200:
+          description: succeed
+          schema:
+            type: object
+            properties:
+              pagination:
+                type: object
+                properties:
+                  previous:
+                    type: string
+                    description: url for previous page
+                  next:
+                    type: string
+                    description: url for next page
+              count:
+                type: integer
+                description: total number of coupons
+              more:
+                type: boolean
+                description: is there more coupons.
+              response:
+                type: array
+                items:
+                  $ref: '#/definitions/VikipassCoupon'
+    post:
+      parameters:
+        - name: viki_coupon
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              viki_plan_id:
+                type: string
+              coupon_code:
+                type: string
+              pct_off:
+                type: integer
+              period_cnt:
+                type: integer
+              redemption_cnt_max:
+                type: integer
+              expiry_date:
+                type: string
+                format: date-time
+              active:
+                type: boolean
+              countries:
+                type: array
+                items:
+                  type: string
+            required:
+              - name
+              - viki_plan_id
+              - coupon_code
+              - pct_off
+              - period_cnt
+              - redemption_cnt_max
+      responses:
+        201:
+          description: created
+          schema:
+            $ref: '#/definitions/VikipassCoupon'
+        400:
+          description: coupon code already exists
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+        404:
+          description: plan id not found
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # GET    /v5/viki_coupons/:id.:format
+  # PATCH  /v5/viki_coupons/:id.:format
+  # PUT    /v5/viki_coupons/:id.:format
+  # DELETE /v5/viki_coupons/:id.:format
+  '/v5/viki_coupons/{id}.json':
+    parameters:
+      - name: id
+        description: coupon id
+        in: path
+        required: true
+        type: string
+    get:
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/VikipassCoupon'
+        400:
+          description: invalid coupon id
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+    patch:
+      parameters:
+        - name: viki_coupon
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              viki_plan_id:
+                type: string
+              coupon_code:
+                type: string
+              pct_off:
+                type: integer
+              period_cnt:
+                type: integer
+              redemption_cnt_max:
+                type: integer
+              expiry_date:
+                type: string
+                format: date-time
+              active:
+                type: boolean
+              countries:
+                type: array
+                items:
+                  type: string
+      responses:
+        200:
+          description: updated
+        400:
+          description: invalid coupon id
+          schema:
+            $ref: '#/definitions/VikipassError'
+        409:
+          description: coupon has been applied
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+    put:
+      parameters:
+        - name: viki_coupon
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              viki_plan_id:
+                type: string
+              coupon_code:
+                type: string
+              pct_off:
+                type: integer
+              period_cnt:
+                type: integer
+              redemption_cnt_max:
+                type: integer
+              expiry_date:
+                type: string
+                format: date-time
+              active:
+                type: boolean
+              countries:
+                type: array
+                items:
+                  type: string
+      responses:
+        200:
+          description: updated
+        400:
+          description: invalid coupon id
+          schema:
+            $ref: '#/definitions/VikipassError'
+        409:
+          description: coupon has been applied
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+    delete:
+      responses:
+        201:
+          description: deleted
+        400:
+          description: invalid coupon id
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # GET    /v5/viki_coupons/coupon_codes/:coupon_code.:format
+  '/v5/viki_coupons/coupon_codes/{coupon_code}.json':
+    parameters:
+      - name: coupon_code
+        description: coupon code
+        in: path
+        required: true
+        type: string
+    get:
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/VikipassCoupon'
+        400:
+          description: invalid coupon code
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # GET    /v5/viki_coupons/:viki_coupon_id/applied_coupons.:format
+  '/v5/viki_coupons/{id}/applied_coupons.json':
+    parameters:
+      - name: id
+        description: coupon id
+        in: path
+        required: true
+        type: string
+    get:
+      description: get list of applied coupon that is based on this coupon
+      responses:
+        200:
+          description: succeed
+          schema:
+            type: object
+            properties:
+              pagination:
+                type: object
+                properties:
+                  previous:
+                    type: string
+                    description: url for previous page
+                  next:
+                    type: string
+                    description: url for next page
+              count:
+                type: integer
+                description: total number of applied coupons
+              more:
+                type: boolean
+                description: is there more applied coupons.
+              response:
+                type: array
+                items:
+                  $ref: '#/definitions/VikiAppliedCoupon'
+        400:
+          description: invalid coupon code
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # DELETE /v5/viki_applied_coupons/:id.:format
+  '/v5/viki_applied_coupons/{id}.json':
+    parameters:
+      - name: id
+        description: applied coupon id
+        in: path
+        required: true
+        type: string
+    delete:
+      description: delete an applied coupon so that when the subscription that is with this applied coupon is renewed, it can't use this applied coupon.
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/VikiAppliedCoupon'
+        400:
+          description: invalid applied coupon id
+          schema:
+            $ref: '#/definitions/VikipassError'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # GET    /v5/viki_plans.:format
+  # POST   /v5/viki_plans.:format
+  # TODO:
+  '/v5/viki_plans.json':
+    get:
+      responses:
+        200:
+          description: 'succeed'
+          schema:
+            type: object
+            properties:
+              pagination:
+                type: object
+                properties:
+                  previous:
+                    type: string
+                    description: url for previous page
+                  next:
+                    type: string
+                    description: url for next page
+              count:
+                type: integer
+                description: total number of plans
+              more:
+                type: boolean
+                description: is there more plan.
+              response:
+                type: array
+                items:
+                  $ref: '#/definitions/VikiPlan'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+    post:
+      responses:
+        201:
+          description: created
+
+  # GET    /v5/viki_plans/:id.:format
+  # PATCH  /v5/viki_plans/:id.:format
+  # PUT    /v5/viki_plans/:id.:format
+  # DELETE /v5/viki_plans/:id.:format
+  '/v5/viki_plans/{id}.json':
+    parameters:
+      - name: id
+        description: plan id
+        in: path
+        required: true
+        type: string
+    get:
+      responses:
+        200:
+          description: scucceed
+          schema:
+            $ref: '#/definitions/VikiPlan'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+        404:
+          description: plan not found
+          schema:
+            $ref: '#/definitions/VikipassError'
+    put:
+      parameters:
+        - name: viki_plan
+          description: viki plan info
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              interval_type:
+                $ref: '#/definitions/PeriodIntervalType'
+              interval_cnt:
+                $ref: '#/definitions/PeriodIntervalCnt'
+              trial_period_type:
+                $ref: '#/definitions/PeriodIntervalType'
+              trial_period_cnt:
+                $ref: '#/definitions/PeriodIntervalCnt'
+              credit:
+                type: integer
+                format: uint32
+              active:
+                type: boolean
+      responses:
+        200:
+          description: scucceed
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+    patch:
+      parameters:
+        - name: viki_plan
+          description: viki plan info
+          in: body
+          required: true
+          schema:
+            type: object
+            properties:
+              name:
+                type: string
+              interval_type:
+                $ref: '#/definitions/PeriodIntervalType'
+              interval_cnt:
+                $ref: '#/definitions/PeriodIntervalCnt'
+              trial_period_type:
+                $ref: '#/definitions/PeriodIntervalType'
+              trial_period_cnt:
+                $ref: '#/definitions/PeriodIntervalCnt'
+              credit:
+                type: integer
+                format: uint32
+              active:
+                type: boolean
+      responses:
+        200:
+          description: scucceed
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+    delete:
+      responses:
+        200:
+          description: scucceed
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+        404:
+          description: plan not found
+          schema:
+            $ref: '#/definitions/VikipassError'
+        422:
+          description: can not process, plan has been used
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # GET    /v5/viki_subscriptions.:format
+  # POST   /v5/viki_subscriptions.:format
+  # TODO:
+  '/v5/viki_subscriptions.json':
+    get:
+      responses:
+        200:
+          description: succeed
+    post:
+      responses:
+        201:
+          description: created
+
+  # GET    /v5/viki_subscriptions/issubscriber.:format
+  # TODO:
+  '/v5/viki_subscriptions/issubscriber.json':
+    get:
+      description: check whether an user is a subscriber or not
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_subscriptions/:id.:format
+  # PATCH  /v5/viki_subscriptions/:id.:format
+  # PUT    /v5/viki_subscriptions/:id.:format
+  # DELETE /v5/viki_subscriptions/:id.:format
+  # TODO:
+  '/v5/viki_subscriptions/{id}.json':
+    parameters:
+      - name: id
+        type: string
+        required: true
+        in: path
+    get:
+      responses:
+        200:
+          description: succeed
+    put:
+      responses:
+        200:
+          description: updated
+    patch:
+      responses:
+        200:
+          description: updated
+    delete:
+      responses:
+        200:
+          description: deleted
+
+  # PUT    /v5/viki_subscriptions/:viki_subscription_id/apply_coupon.:format
+  '/v5/viki_subscriptions/{id}/apply_coupon.json':
+    parameters:
+      - name: id
+        description: user id
+        in: path
+        required: true
+        type: string
+    put:
+      description: 'apply coupon on existing subscription, subscription and coupon should has same plan'
+      parameters:
+        - name: coupon_code
+          in: query
+          type: string
+          required: true
+      responses:
+        201:
+          description: succeed
+          schema:
+            properties:
+              ok:
+                type: boolean
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/VikipassError'
+        404:
+          description: coupon or subscription not found
+          schema:
+            $ref: '#/definitions/VikipassError'
+        422:
+          description: unable to process the request
+          schema:
+            $ref: '#/definitions/VikipassError'
+
+  # GET    /v5/viki_subscriptions/:viki_subscription_id/applied_coupons.:format
+  # TODO:
+  '/v5/viki_subscriptions/{id}/applied_coupons.json':
+    parameters:
+      - name: id
+        type: string
+        required: true
+        in: path
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_subscriptions/:viki_subscription_id/gift_card.:format
+  # TODO:
+  '/v5/viki_subscriptions/{id}/gift_card.json':
+    parameters:
+      - name: id
+        type: string
+        required: true
+        in: path
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_subscriptions/:viki_subscription_id/periods.:format
+  # TODO:
+  '/v5/viki_subscriptions/{id}/periods.json':
+    parameters:
+      - name: id
+        type: string
+        required: true
+        in: path
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v4/plans.json
+  '/v4/users/{user_id}/plans.json':
+    parameters:
+      - name: user_id
+        description: user id
+        type: string
+        in: path
+        required: true
+
+    get:
+      description: |
+        Get all mobile subscriptions of a user.
+
+        [HIDDEN CLIENT ASSUMPTION]: There is only 1 Google subscription for a particular plan_id for the session user
+      tags:
+        - active
+        - mobile
+        - session_required
+        - do_not_paginate
+      parameters:
+        - name: payment_provider
+          description: "one of {google,apple}"
+          type: string
+          in: query
+        - name: active
+          description: "whether the subscription is still active"
+          type: boolean
+          in: query
+      responses:
+        200:
+          description: 'succeeded'
+          schema:
+            $ref: '#/definitions/VikiPassMobileSubscriptions'
+        403:
+          description: 'no session user (via X-Viki-User-Id)'
+          schema:
+            $ref: '#/definitions/VikiPassError18'
+        401:
+          description: 'requesting info from user != session user'
+          schema:
+            $ref: '#/definitions/VikiPassError7408'
+
+  # GET    /v4/users/:user_id/plans/:plan_id.json
+  # POST   /v4/users/:user_id/plans/:plan_id.json
+  # PUT    /v4/users/:user_id/plans/:plan_id.json
+  # DELETE /v4/users/:user_id/plans/:plan_id.json
+  # TODO:
+  '/v4/users/{user_id}/plans/{plan_id}.json':
+    parameters:
+      - name: user_id
+        description: user id
+        type: string
+        in: path
+        required: true
+      - name: plan_id
+        description: plan id
+        type: string
+        in: path
+        required: true
+
+    post:
+      description: |
+        [Android ONLY]
+
+        [SERVER ASSUMPTION]: client can see ALL active subscriptions of the user and send ALL of them to server
+
+        Link Google subscriptions to a Viki user.
+
+        Have 3 main effects:
+
+        - If the client-sent subscription is free (not associated with anyone) and session user doesn't have another active subscription of the same class => assign to user
+        - If the client-sent subscription currently belongs the user => trigger a refresh for it
+        - If the session user have an active subscription that is not sent by client, we assume there has been a plan change => write analytics event and terminate our copy of the sub (not terminated on Google, however)
+
+        Concern:
+
+        - Will need a revamp once user is allowed to have multiple active subscription from Google
+      tags:
+        - active
+        - mobile
+        - session_required
+        - deprecation_planned
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              customer_id:
+                type: string
+              payment_provider:
+                type: string
+            required:
+              - customer_id
+              - payment_provider
+        - name: app
+          description: app id
+          in: query
+          type: string
+          required: true
+
+      responses:
+        x-422-1:
+          description: 'Missing or invalid parameters'
+          schema:
+            $ref: '#/definitions/VikiPassError7'
+        x-422-2:
+          description: 'no google VikiPlanPaymentProvider matching the plan_id param'
+          schema:
+            $ref: '#/definitions/VikiPassError7'
+        x-422-3:
+          description: 'session-user already have another active subscription (web/ios)'
+          schema:
+            $ref: '#/definitions/VikiPassError7615'
+        x-422-4:
+          description: 'one of the google subscriptions sent does not belong to session user'
+          schema:
+            $ref: '#/definitions/VikiPassError7618'
+        x-422-5:
+          description: 'invalid purchase token'
+          schema:
+            $ref: '#/definitions/VikiPassError7646'
+        x-422-0:
+          description: '[UNDEFINED] typically problem logging the request down. Possibly related to the body format, db connection, db constraint problem'
+          schema:
+            $ref: '#/definitions/VikiPassError7603'
+        x-422-6:
+          description: '[UNDEFINED] catch-all for unexpected failures while updating google subscriptions of session user'
+          schema:
+            $ref: '#/definitions/VikiPassError7616'
+        403:
+          description: 'no session user (via X-Viki-User-Id)'
+          schema:
+            $ref: '#/definitions/VikiPassError18'
+        401:
+          description: 'user to link the google subscription to != session user'
+          schema:
+            $ref: '#/definitions/VikiPassError7408'
+        201:
+          description: 'succeeded'
+          schema:
+            $ref: '#/definitions/VikiPassMobileSubscriptions'
+
+    delete:
+      description: |
+        [Android ONLY]
+
+        [SERVER ASSUMPTION]: There is only 1 Google subscription for a particular plan_id for the session user
+
+        [SERVER ASSUMPTION]: Client is calling to stop a valid Google subscription (with its associated data)
+
+        Stop the Google subscription (identified via user_id, plan_id; assumed only have 1) from auto-renewing.
+      tags:
+        - active
+        - mobile
+        - session_required
+        - deprecation_planned
+      responses:
+        204:
+          description: 'succeeded'
+        422:
+          description: '[UNDEFINED] typically problem logging the request down. Possibly related to the body format, db connection, db constraint problem'
+          schema:
+            $ref: '#/definitions/VikiPassError7603'
+        500:
+          description: |
+            broken assumptions, like:
+
+              - no payment proivder for the sent plan_id
+              - can't get the session user's current subscription list
+              - user doesn't any google sub that match this plan_id
+              - cannot stop the subscription from renewing from Google
+          schema:
+            $ref: '#/definitions/VikiPassErrorFatal'
+
+  # POST   /v5/android_subscriptions.json
+  '/v5/android_subscriptions.json':
+    post:
+      description: |
+        This is the newer version and is more preferred than "POST /v4/users/{user_id}/plans/{plan_id}.json"
+
+        [Android ONLY]
+
+        [SERVER ASSUMPTION]: client can see ALL active subscriptions of the user and send ALL of them to server
+
+        Link Google subscriptions to a Viki user.
+
+        Have 3 main effects:
+
+        - If the client-sent subscription is free (not associated with anyone) and session user doesn't have another active subscription of the same class => assign to user
+        - If the client-sent subscription currently belongs the user => trigger a refresh for it
+        - If the session user have an active subscription that is not sent by client, we assume there has been a plan change => write analytics event and terminate our copy of the sub (not terminated on Google, however)
+
+        Concern:
+
+        - Will need a revamp once user is allowed to have multiple active subscription from Google
+      tags:
+        - active
+        - mobile
+        - session_required
+      parameters:
+        - name: body
+          in: body
+          schema:
+            type: object
+            properties:
+              active_purchases:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    purchase_token:
+                      type: string
+                    subscription_id:
+                      type: string
+                    order_id:
+                      type: string
+                  required:
+                    - purchase_token
+                    - subscription_id
+                    - order_id
+              user_id:
+                type: string
+            required:
+              - active_purchases
+              - user_id
+        - name: app
+          description: app id
+          in: query
+          type: string
+          required: true
+
+      responses:
+        x-422-1:
+          description: 'Missing or invalid parameters'
+          schema:
+            $ref: '#/definitions/VikiPassError7'
+        x-422-2:
+          description: 'no google VikiPlanPaymentProvider matching the plan_id param'
+          schema:
+            $ref: '#/definitions/VikiPassError7'
+        x-422-3:
+          description: 'session-user already have another active subscription (web/ios)'
+          schema:
+            $ref: '#/definitions/VikiPassError7615'
+        x-422-4:
+          description: 'one of the google subscriptions sent does not belong to session user'
+          schema:
+            $ref: '#/definitions/VikiPassError7618'
+        x-422-5:
+          description: 'invalid purchase token'
+          schema:
+            $ref: '#/definitions/VikiPassError7646'
+        x-422-0:
+          description: '[UNDEFINED] typically problem logging the request down. Possibly related to the body format, db connection, db constraint problem'
+          schema:
+            $ref: '#/definitions/VikiPassError7603'
+        x-422-6:
+          description: '[UNDEFINED] catch-all for unexpected failures while updating google subscriptions of session user'
+          schema:
+            $ref: '#/definitions/VikiPassError7616'
+        403:
+          description: 'no session user (via X-Viki-User-Id)'
+          schema:
+            $ref: '#/definitions/VikiPassError18'
+        401:
+          description: 'user to link the google subscription to != session user'
+          schema:
+            $ref: '#/definitions/VikiPassError7408'
+        201:
+          description: 'succeeded'
+          schema:
+            $ref: '#/definitions/VikiPassMobileSubscriptions'
+
+  # GET    /v5/viki_invoices.:format
+  # TODO:
+  '/v5/viki_invoices.json':
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_invoices/:id.:format
+  # PATCH  /v5/viki_invoices/:id.:format
+  # PUT    /v5/viki_invoices/:id.:format
+  # TODO:
+  '/v5/viki_invoices/{id}.json':
+    parameters:
+      - name: id
+        description: invoice id
+        in: path
+        type: string
+        required: true
+    get:
+      responses:
+        200:
+          description: succeed
+    patch:
+      responses:
+        200:
+          description: succeed
+    put:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_invoices/:viki_invoice_id/invoice_line_items.:format
+  # TODO:
+  '/v5/viki_invoices/{id}/invoice_line_items.json':
+    parameters:
+      - name: id
+        description: invoice id
+        in: path
+        type: string
+        required: true
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_invoices/:viki_invoice_id/payment_transactions.:format
+  # TODO:
+  '/v5/viki_invoices/{id}/payment_transactions.json':
+    parameters:
+      - name: id
+        description: invoice id
+        in: path
+        type: string
+        required: true
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # POST   /v5/viki_payment_transactions/:viki_payment_transaction_id/refund.:format
+  # TODO:
+  '/v5/viki_payment_transactions/{id}/refund.json':
+    parameters:
+      - name: id
+        description: payment transaction id
+        in: path
+        type: string
+        required: true
+    post:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_payment_transactions.:format
+  # TODO:
+  '/v5/viki_payment_transactions.json':
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_payment_transactions/:id.:format
+  # TODO:
+  '/v5/viki_payment_transactions/{id}.json':
+    parameters:
+      - name: id
+        description: payment transaction id
+        in: path
+        type: string
+        required: true
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_gift_card_types.:format
+  # POST   /v5/viki_gift_card_types.:format
+  # TODO:
+  '/v5/viki_gift_card_types.json':
+    get:
+      responses:
+        200:
+          description: succeed
+    post:
+      responses:
+        201:
+          description: created
+
+  # GET    /v5/viki_gift_card_types/:id.:format
+  # PATCH  /v5/viki_gift_card_types/:id.:format
+  # PUT    /v5/viki_gift_card_types/:id.:format
+  # DELETE /v5/viki_gift_card_types/:id.:format
+  # TODO:
+  '/v5/viki_gift_card_types/{id}.json':
+    parameters:
+      - name: id
+        description: gift card type id
+        in: path
+        type: string
+        required: true
+    get:
+      responses:
+        200:
+          description: succeed
+    patch:
+      responses:
+        200:
+          description: updated
+    put:
+      responses:
+        200:
+          description: updated
+    delete:
+      responses:
+        200:
+          description: deleted
+
+  # GET    /v5/viki_gift_cards.json
+  # TODO:
+  '/v5/viki_gift_cards.json':
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # GET    /v5/viki_gift_cards/:gift_code.json
+  # TODO:
+  '/v5/viki_gift_cards/{gift_code}.json':
+    parameters:
+      - name: gift_code
+        description: gift code
+        in: path
+        type: string
+        required: true
+    get:
+      responses:
+        200:
+          description: succeed
+
+  # POST   /v5/viki_gift_cards/:gift_code/redeem.json
+  # TODO:
+  '/v5/viki_gift_cards/{gift_code}/redeem.json':
+    parameters:
+      - name: gift_code
+        description: gift code
+        in: path
+        type: string
+        required: true
+    post:
+      responses:
+        200:
+          description: redeemed
+
+  # POST   /v5/payments/viki/stripe/callback.json
+  # TODO:
+  '/v5/payments/viki/stripe/callback.json':
+    post:
+      responses:
+        200:
+          description: redeemed
+
+definitions:
+
+  VikiPassError7603:
+    properties:
+      error:
+        type: string
+        description: 'error creating the plan subscriber'
+      vcode:
+        type: number
+        description: "7603"
+  VikiPassError7:
+    properties:
+      error:
+        type: string
+        description: 'Missing or invalid parameters'
+      vcode:
+        type: number
+        description: "7"
+  VikiPassError18:
+    properties:
+      error:
+        type: string
+        description: 'forbidden'
+      vcode:
+        type: number
+        description: "18"
+  VikiPassError7408:
+    properties:
+      error:
+        type: string
+        description: 'invalid permissions'
+      vcode:
+        type: number
+        description: "7408"
+  VikiPassError7615:
+    properties:
+      error:
+        type: string
+        description: 'User already had an active subscription'
+      vcode:
+        type: number
+        description: "7615"
+  VikiPassError7618:
+    properties:
+      error:
+        type: string
+        description: 'Purchase token is already associated with another subscription'
+      vcode:
+        type: number
+        description: "7618"
+  VikiPassError7646:
+    properties:
+      error:
+        type: string
+        description: 'invalid purchase token'
+      vcode:
+        type: number
+        description: "7646"
+  VikiPassError7616:
+    properties:
+      error:
+        type: string
+        description: 'Verification to payment server failed'
+      vcode:
+        type: number
+        description: "7616"
+  VikiPassErrorFatal:
+    properties:
+      error:
+        type: string
+        description: 'something we did not think about on the server happened'
+      vcode:
+        type: number
+        description: "-1"
+
+  VikiPassMobileSubscriptions:
+    properties:
+      more:
+        type: boolean
+      items:
+        type: array
+        items:
+           $ref: '#/definitions/VikiPassMobileSubscription'
+  VikiPassMobileSubscription:
+    properties:
+      id:
+        type: string
+      user_id:
+        type: string
+      plan_id:
+        type: string
+      customer_id:
+        type: string
+        description: "[DO NOT USE] id of a PlanPurchaseToken"
+      payment_provider:
+        type: string
+      active:
+        type: boolean
+      is_trial:
+        type: boolean
+      original_transaction_id:
+        type: string
+        description: "[DO NOT USE] typically the order id/transaction id on the provider side"
+      start_date:
+        type: string
+        format: date-time
+        description: Typically when this subscription first started (RFC3339)
+      end_date:
+        type: string
+        format: date-time
+        description: The current expiry date of this subcription (RFC3339)
+      created_at:
+        type: string
+        format: date-time
+        description: RFC3339
+      updated_at:
+        type: string
+        format: date-time
+        description: RFC3339
+      cancel_date:
+        type: string
+        format: date-time
+        description: "[DO NOT USE] Typically when user/system cancel the sub. null for android sub"
+      plan:
+        $ref: '#/definitions/VikiPlan'
+
+  VikipassCoupon:
+    properties:
+      id:
+        type: string
+        description: coupon id
+      name:
+        type: string
+        description: coupon's name
+      plan:
+        $ref: '#/definitions/VikiPlan'
+      coupon_code:
+        type: string
+      pct_off:
+        type: integer
+        description: percentage discount of price for specified plan
+      period_cnt:
+        type: integer
+        description: period count of discount for the specified plan.
+      redemption_cnt_max:
+        type: integer
+        description: total redemption this coupon can be made
+      redemption_cnt:
+        type: integer
+        description: redemption already made
+      created_at:
+        type: string
+        format: date-time
+      active:
+        type: boolean
+      countries:
+        type: array
+        description: countries this coupon is valid, when empty, coupon is valid everywhere.
+        items:
+          type: string
+      expiry_date:
+        type: string
+        format: date-time
+
+  VikiAppliedCoupon:
+    properties:
+      id:
+        type: string
+        description: applied coupon id
+      viki_coupon_id:
+        type: string
+        description: the coupon id this applied coupon from, you can look applied coupon as an instance of coupon.
+      effective_date:
+        type: string
+        description: time of the latest time this applied coupon was used.
+        format: date-time
+      redemption_left_cnt:
+        type: string
+      active:
+        type: boolean
+        description: whether this applied coupon is active or not.
+      status:
+        type: string
+      viki_subscription_id:
+        type: string
+      applied_at:
+        type: string
+        format: date-time
+        description: when this applied coupon was applied/created.
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - viki_coupon_id
+      - effective_date
+      - redemption_left_cnt
+      - active
+      - status
+      - viki_subscription_id
+      - applied_at
+      - created_at
+      - updated_at
+
+  VikipassUserSummary:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+        description: user's display name
+      username:
+        type: string
+        description: user's account name
+      images:
+        type: object
+        description: user's profile image
+        properties:
+          avator:
+            type: object
+            properties:
+              url:
+                type: string
+                description: image url
+            required:
+              - url
+        required:
+          - avator
+    required:
+      - id
+      - images
+
+  VikipassUseraccount:
+    properties:
+      id:
+        type: string
+        description: user account id
+      user:
+        $ref: '#/definitions/VikipassUserSummary'
+      credit:
+        type: integer
+        format: uint64
+        description: user's total credit points. one credit point is one us cent.
+      next_billing_date:
+        type: string
+        format: date-time
+      created_at:
+        type: string
+        format: date-time
+      payment_provider_customers:
+        type: array
+        items:
+          $ref: '#/definitions/PaymentProviderCustomer'
+    required:
+      - id
+      - user
+      - payment_provider_customers
+
+  VikiPlan:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+        description: plan description
+      interval_type:
+        $ref: '#/definitions/PeriodIntervalType'
+      interval_cnt:
+        $ref: '#/definitions/PeriodIntervalCnt'
+      trial_period_type:
+        $ref: '#/definitions/PeriodIntervalType'
+      trial_period_cnt:
+        $ref: '#/definitions/PeriodIntervalCnt'
+      active:
+        type: boolean
+      purchasable:
+        type: boolean
+      credit:
+        type: integer
+        format: uint32
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      allow_trial:
+        type: boolean
+      viki_plan_payment_providers:
+        type: array
+        items:
+          type: string
+          enum:
+            - 'stripe'
+    required:
+      - id
+      - name
+      - interval_type
+      - interval_cnt
+      - trial_period_type
+      - trial_period_cnt
+      - active
+      - purchasable
+      - credit
+      - created_at
+      - updated_at
+      - allow_trial
+      - viki_plan_payment_providers
+
+  PaymentProviderCustomer:
+    properties:
+      id:
+        type: string
+        description: customer id
+      customer_id:
+        type: string
+        description: customer id refered in payment provider service
+      payment_provider:
+        $ref: '#/definitions/PaymentProviderType'
+      payload:
+        $ref: '#/definitions/StripeCustomer'
+    required:
+      - id
+      - customer_id
+      - payment_provider
+      - payload
+  PaymentProviderCard:
+    properties:
+      id:
+        type: string
+      payment_provider:
+        type: string
+      card_id:
+        type: string
+      last4:
+        type: string
+      brand:
+        type: string
+      exp_month:
+        type: string
+      exp_year:
+        type: string
+      funding:
+        type: string
+      country:
+        type: string
+      zip_code:
+        type: string
+      state:
+        type: string
+      address:
+        type: string
+      payload:
+        $ref: '#/definitions/StripeCard'
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - card_id
+      - payment_provider
+      - last4
+      - brand
+      - exp_month
+      - exp_year
+      - payload
+      - created_at
+  StripeCustomer:
+    properties:
+      id:
+        type: string
+      email:
+        type: string
+      object:
+        type: string
+        enum:
+          - 'customer'
+      created:
+        type: integer
+        format: uint64
+      sources:
+        type: object
+        properties:
+          url:
+            type: string
+          data:
+            type: array
+            items:
+              $ref: '#/definitions/StripeCard'
+        required:
+          - url
+          - data
+    required:
+      - id
+      - email
+      - object
+      - sources
+  StripeCard:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      brand:
+        type: string
+      last4:
+        type: string
+      object:
+        type: string
+        enum:
+          - 'card'
+      country:
+        type: string
+      funding:
+        type: string
+      customer:
+        type: string
+      exp_year:
+        type: integer
+        format: uint16
+      meta_data:
+        type: object
+      cvc_check:
+        type: string
+        enum:
+          - 'pass'
+      exp_month:
+        type: integer
+        format: ushort
+      address_zip:
+        type: string
+      fingerprint:
+        type: string
+      address_city:
+        type: string
+      address_line1:
+        type: string
+      address_line2:
+        type: string
+      address_state:
+        type: string
+      dynamic_last4:
+        type: string
+      address_country:
+        type: string
+      address_zip_check:
+        type: string
+      address_line1_check:
+        type: string
+      tokenlization_method:
+        type: string
+    required:
+      - id
+      - name
+      - brand
+      - last4
+      - object
+      - customer
+      - fingerprint
+      - exp_year
+      - exp_month
+  VikipassError:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: |
+          A number representing what error this would be.
+
+          * 7 - MISSING_PARAMS_ERROR
+          * 8 - INVALID_PARAMS_ERROR
+          * 9 - RESOURCE_NOT_FOUND_ERROR
+          * 10 - UNAUTHORIZED_RESOURCE_ACCESS
+          * 8001 - PAYMENT_PROVIDER_CARD_ERROR
+          * 8002 - PAYMENT_PROVIDER_API_ERROR
+          * 8003 - VIKI_API_ERROR
+          * 9001 - INTERNAL_ERROR
+          * 9001 - ERROR_SENDING_EMAIL
+          * 9001 - DATA_NOT_IN_CONSISTENT_STATE
+          * 9001 - ACTIVE_SUBSCRIPTION_EXIST
+          * 9001 - MISSING_STRIPE_PAYMENT_PROVIDER
+          * 9001 - SUBSCRIPTION_CANNOT_BE_CHANGED
+          * 9001 - GIFT_CARD_HAD_BEEN_REDEEMED
+          * 9001 - CANNOT_REDEEM_GIFT_CARD_ON_ACTIVE_SUBSCRIPTION
+          * 7620 - COUPON_HAD_BEEN_APPLIED
+          * 7621 - COUPON_NOT_MATCH_SUBSCRIPTION
+          * 7622 - EXISTED_COUPON_FOR_SUBSCRIPTION
+          * 7623 - COUPON_EXPIRED
+          * 7624 - USER_ACCOUNT_DOES_NOT_HAVE_ENOUGH_CREDIT_AND_NO_PAYMENT_PROVIDER
+          * 7625 - CANNOT_MAKE_CHANGE_TO_PLAN_WHICH_IS_BEING_USED
+          * 7626 - CANNOT_MAKE_CHANGE_TO_GIFT_CARD_TYPE_WHICH_IS_BEING_USED
+          * 7627 - ISSUED_COUPON_EXPIRED
+          * 7628 - COUPON_IS_NOT_ISSUED
+          * 7629 - CANNOT_ISSUE_NON_TARGETED_COUPON
+          * 7630 - SAME_ACTION_EXISTED_CANNOT_ADD_NEW_ACTION
+          * 7631 - CANNOT_CHANGE_ENFORCED_ACTION
+          * 7632 - ACTION_IS_NOT_SUPPORTED
+          * 7633 - PAYMENT_PROVIDER_IS_NOT_SUPPORTED
+          * 7634 - COUPON_DOES_NOT_MATCH_COUNTRY=7634
+        enum:
+          - 7
+          - 8
+          - 9
+          - 10
+          - 8001
+          - 8002
+          - 8003
+          - 9001
+          - 9002
+          - 9003
+          - 7615
+          - 7616
+          - 7617
+          - 7618
+          - 7619
+          - 7620
+          - 7621
+          - 7622
+          - 7623
+          - 7624
+          - 7625
+          - 7626
+          - 7627
+          - 7628
+          - 7629
+          - 7630
+          - 7631
+          - 7632
+          - 7633
+          - 7634
+      error:
+        type: object
+        description: description of the error
+      subject:
+        type: string
+        description: a short description on the error
+    required:
+      - vcode
+      - error
+  PeriodIntervalType:
+    type: string
+    enum:
+      - 'year'
+      - 'month'
+      - 'day'
+      - 'week'
+  PeriodIntervalCnt:
+    type: integer
+    format: uint32
+  PaymentProviderType:
+    type: string
+    description: payment provider name
+    enum:
+      - 'stripe'

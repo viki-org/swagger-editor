@@ -1,0 +1,123 @@
+---
+swagger: '2.0'
+host: api-staging.viki.net
+basePath: /v4
+securityDefinitions:
+  ClientId:
+    type: apiKey
+    name: app
+    in: query
+    description: Register your application at the **Viki application dashboard**.You
+      may use your normal Viki account or create a separate account to manage your
+      applications. You will be granted a **Client ID** and a **Client Secret**.
+  ClientSecret:
+    type: apiKey
+    name: secret
+    in: header
+  Token:
+    type: apiKey
+    name: token
+    in: query
+    description: ! '     Login a user to obtain a user access token.     **POST /v5/sessions.json**     *Params*       *
+      username       * password     Example: `{\"username\": \"tyler\",\"password\":
+      \"relyt\"}`     The returned value includes two fields: token and user. The
+      token acts like a session id, and should be included in any subsequent user-specific
+      requests via token=TOKEN. The user   field in general information about the
+      user.'
+info:
+  description: ''
+  version: '4.0'
+  title: Watchlater
+  contact:
+    name: platform@viki.com
+schemes:
+- http
+- https
+tags:
+- name: Watchlater
+  description: Watchlater allows user's to add shows to a specific list which can be viewed later.
+paths:
+  /users/{user_id}/watchlaters.json:
+    post:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Watchlater
+      summary: Add a specific show to watchlater
+      operationId: addWatchLater
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        type: string
+        name: user_id
+        required: true
+      - in: body
+        name: body
+        required: true
+        schema:
+          $ref: "#/definitions/AddWatchlater"
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              ok:
+                type: boolean
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/WatchlaterListError'
+  /users/{user_id}/watchlaters/{resource_id}.json:
+    delete:
+      security:
+      - ClientId: []
+      - ClientSecret: []
+      - Token: []
+      tags:
+      - Watchlater
+      summary: Delete a show from watchlater
+      operationId: removeWatchlater
+      produces:
+      - application/json
+      parameters:
+      - in: path
+        type: string
+        name: user_id
+        required: true
+      - in: path
+        name: resource_id
+        type: string
+        required: true
+      responses:
+        200:
+          description: OK
+          schema:
+            properties:
+              ok:
+                type: boolean
+        401:
+          description: Unauthorized
+          schema:
+            $ref: ! '#/definitions/WatchlaterListError'
+definitions:
+  AddWatchlater:
+    title: Watchlater
+    type: object
+    properties:
+      resource_id:
+        type: string
+  WatchlaterListError:
+    title: Error
+    type: object
+    properties:
+      error:
+        type: array
+        items:
+          type: string
+      vcode:
+        type: integer

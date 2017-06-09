@@ -1,0 +1,2467 @@
+swagger: '2.0'
+
+info:
+  version: '1.0'
+  title: users.json
+
+schemes:
+  - https
+
+consumes:
+  - application/json
+
+produces:
+  - application/json
+
+paths:
+
+  # V4
+  # ---
+  #   USERS service
+  #   ============
+  #
+  #    "method": "*",                       "url": "/reset_password_tokens",         "to":"users",
+  #    "method": "*",                       "url": "/sessions",                      "to":"users",
+  #    "method": "GET",                     "url": "/users/*/likes",                 "to":"users",
+  #    "method": "GET",                     "url": "/users/*/badges",                "to":"users",
+  #    "method": "POST,PUT,DELETE",         "url": "/users/*/likes",                 "to":"users",
+  #    "method": "*",                       "url": "/users/*/impersonate",           "to":"users",
+  #    "method": "POST,PUT,DELETE",         "url": "/users",                         "to":"users",
+  #    "method": "*",                       "url": "/users/*/about",                 "to":"users",
+
+
+  #   ARES service
+  #   ============
+  #
+  #    "method": "*",                       "url": "/users/*/summary",               "to":"ares",
+  #    "method": "GET",                     "url": "/users",                         "to":"ares",
+  #    "method": "DELETE,POST",             "url": "/users/*/followings",            "to":"ares",
+  #    "method": "GET",                     "url": "/users/*/followers",             "to":"ares",
+  #    "method": "GET",                     "url": "/users/*/followings",            "to":"ares",
+
+
+  # V5
+  # ---
+  #    "method": "*",                       "url": "/sessions",                      "to":"users",
+  #    "method": "*",                       "url": "/users",                         "to":"users",
+  #    "method": "GET",                     "url": "/badges",                        "to":"users",
+  #    "method": "GET",                     "url": "/tracks",                        "to":"users",
+  #    "method": "POST,PUT,DELETE",         "url": "/subscriptions",                 "to":"users",
+
+
+
+  # User management
+  # ---------------
+  #  delete method not supported
+  '/v4/users.json':
+    post:
+      description: create a new user
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/UserCreate'
+          required: true
+      responses:
+        201:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserInfo'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        400:
+          description: invalid parameters
+          schema:
+            $ref: '#/definitions/InvalidUserParam'
+        x-422-1:
+          description: email already exists.
+          schema:
+            $ref: '#/definitions/UsersError7301'
+        x-422-2:
+          description: username already exists.
+          schema:
+            $ref: '#/definitions/UsersError7302'
+        x-422-3:
+          description: Error creating the user.
+          schema:
+            $ref: '#/definitions/UsersError7401'
+
+  '/v4/users/{id}.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+    get:
+      # todo: update this with ares's exact implementation.
+      description: get user details
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserInfo'
+    put:
+      description: update user
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/UserUpdate'
+          required: true
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserOkResponse'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidUserParam'
+        x-422-1:
+          description: email already exists.
+          schema:
+            $ref: '#/definitions/UsersError7301'
+        x-422-2:
+          description: username already exists.
+          schema:
+            $ref: '#/definitions/UsersError7302'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError500'
+
+  '/v5/users.json':
+    post:
+      description: create a new user
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/V5UserCreate'
+          required: true
+      responses:
+        201:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserInfo'
+        400:
+          description: invalid parameters
+          schema:
+            $ref: '#/definitions/InvalidUserParam'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError500'
+
+  '/v5/users/{id}.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+      - name: full
+        in: query
+        type: boolean
+        default: false
+        required: false
+    get:
+      description: get user
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserInfo'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+    put:
+      description: update user，same as v4 implementation.
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/UserUpdate'
+          required: true
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserOkResponse'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidUserParam'
+        x-422-1:
+          description: email already exists.
+          schema:
+            $ref: '#/definitions/UsersError7301'
+        x-422-2:
+          description: username already exists.
+          schema:
+            $ref: '#/definitions/UsersError7302'
+        401:
+          description: invalid permissions
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError500'
+
+  # Authentication (session management, reset password)
+  # ---------------------------------------------------
+  '/v4/reset_password_tokens.json':
+    post:
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/UserResetPasswordReq'
+          required: true
+      responses:
+        201:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserOkResponse'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidUserParam'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        500:
+          description: internal server error (7003)
+          schema:
+            $ref: '#/definitions/UsersError7003'
+    put:
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/UserResetPassword'
+          required: true
+      responses:
+        200:
+          description: succeed
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidUserParam'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+
+  '/v4/sessions.json':
+    post:
+      description: |
+        User login, create a new session, user can login with different ways.
+
+         - user name (or email address) and password
+         - google id
+         - facebook id
+         - Rakuten id
+         - XBox id
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/V4SessionCreate'
+          required: true
+      responses:
+        201:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserSession'
+        x-404-1:
+          description: invalid username/password
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        x-404-2:
+          description: user disabled.
+          schema:
+            $ref: '#/definitions/UsersError7416'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+    delete:
+      parameters:
+        - name: user_id
+          in: query
+          type: string
+          description: user id of the sessions to delete.
+        - name: token
+          in: query
+          type: string
+          description: token of current session, if provided with delete this session only.
+      responses:
+        202:
+          description: nothing done
+        204:
+          description: succeed
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: session not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+
+  '/v4/users/{id}/impersonate.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+    post:
+      description: login as a specific user without password (management purpose and previledge only).
+      responses:
+        201:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserSession'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+
+  '/v4/sessions/{id}.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        description: token id
+        required: true
+    get:
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserInfo'
+        404:
+          description: invalid token
+          schema:
+            $ref: '#/definitions/UsersError11'
+    put:
+      description: purge user's session and create a new session
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserSession'
+        404:
+          description: invalid token
+          schema:
+            $ref: '#/definitions/UsersError11'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+    delete:
+      responses:
+        202:
+          description: nothing done
+        204:
+          description: deleted
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: session not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+
+  '/v5/sessions.json':
+    post:
+      parameters:
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/V4SessionCreate'
+          required: true
+      responses:
+        201:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserSession'
+        x-400-1:
+          description: Tried and failed to merge anonymous account to existing account.
+          schema:
+            $ref: '#/definitions/UsersError7404'
+        x-400-2:
+          description: Failed to merge accounts. Both have subscriptions.
+          schema:
+            $ref: '#/definitions/UsersError7405'
+        x-404-1:
+          description: invalid username/password
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        x-404-2:
+          description: user disabled.
+          schema:
+            $ref: '#/definitions/UsersError7416'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+    delete:
+      parameters:
+        - name: user_id
+          in: query
+          type: string
+          description: user id of the sessions to delete.
+        - name: token
+          in: query
+          type: string
+          description: token of current session, if provided with delete this session only.
+      responses:
+        202:
+          description: nothing done
+        204:
+          description: succeed
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: session not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+
+  '/v5/sessions/{id}.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        description: token id.
+        required: true
+    get:
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserInfo'
+        404:
+          description: invalid token
+          schema:
+            $ref: '#/definitions/UsersError11'
+    put:
+      description: purge user's session and create a new session
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserSession'
+        404:
+          description: invalid token
+          schema:
+            $ref: '#/definitions/UsersError11'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+    delete:
+      parameters:
+        - name: token
+          in: query
+          type: string
+          description: token of current session, if provided with delete this session only.
+      responses:
+        202:
+          description: nothing done
+        204:
+          description: succeed
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: session not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+
+  # User likes
+  # ----------
+  '/v4/users/{id}/likes.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+    get:
+      description: Get user's list of facebook likes.
+      responses:
+        200:
+          description: succeed
+          schema:
+            type: array
+            items:
+              type: string
+        x-401-1:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/UsersError7412'
+        x-401-2:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+    post:
+      description: Add a new like
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            properties:
+              resource_id:
+                description: id of the liked resource.
+                type: string
+              fb_like_id:
+                description: facebook like id.
+                type: string
+            required:
+              - resource_id
+              - fb_like_id
+      responses:
+        201:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserOkResponse'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidUserParam'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: invalid token
+          schema:
+            $ref: '#/definitions/UsersError11'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError500'
+
+  '/v4/users/{user_id}/likes/{id}.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+      - name: user_id
+        in: path
+        type: string
+        required: true
+    delete:
+      description: delete the specified like.
+      responses:
+        204:
+          description: deleted
+        202:
+          description: nothing done
+        x-401-1:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/UsersError7412'
+        x-401-2:
+          description: invalid permission (7408)
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError500'
+
+  # User badges
+  # -----------
+  '/v5/badges.json':
+    get:
+      description: Get all available badges
+      responses:
+        200:
+          description: succeed
+          schema:
+            properties:
+              response:
+                type: array
+                items:
+                  $ref: '#/definitions/UserBadge'
+            required:
+              - response
+
+  '/v5/users/{id}/badges.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+    post:
+      description: Add a new badge to specified user, need management previlege.
+      parameters:
+        - name: body
+          in: body
+          schema:
+            properties:
+              badge_id:
+                type: string
+            required:
+              - badge_id
+      responses:
+        201:
+          description: succeed
+        x-401-1:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/UsersError7412'
+        x-401-2:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+    get:
+      description: Get user's badge list.
+      responses:
+        200:
+          description: succeed
+          schema:
+            properties:
+              response:
+                type: array
+                items:
+                  $ref: '#/definitions/UserBadge'
+            required:
+              - response
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+
+  '/v5/users/{user_id}/badges/{id}.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+      - name: user_id
+        in: path
+        type: string
+        required: true
+    delete:
+      description: delete an user's specific badge
+      responses:
+        204:
+          description: deleted
+        x-401-1:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/UsersError7412'
+        x-401-2:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError500'
+
+  # User About / Summary
+  # ----------
+  '/v4/users/{id}/about.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+    get:
+      responses:
+        200:
+          description: succeed
+          schema:
+            properties:
+              about:
+                type: string
+
+  '/v4/users/{id}/summary.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+    get:
+      description: get user's self introduction.
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserSummary'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+
+  '/v5/users/{id}/summary.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+    get:
+      description: get user's basic information
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserSummary'
+        404:
+          description: user not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+
+  # User tracks
+  # -----------
+  '/v5/tracks.json':
+    get:
+      responses:
+        200:
+          description: succeed
+          schema:
+            properties:
+              response:
+                type: array
+                items:
+                  $ref: '#/definitions/UserTrack'
+            required:
+              - response
+
+  # User subscriptions
+  # -------------------
+  '/v5/subscriptions.json':
+    post:
+      description: create a new apple subscription.
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/SubscriptionCreate'
+      responses:
+        201:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserSession'
+        x-400-1:
+          description: user need login first
+          schema:
+            $ref: '#/definitions/UsersError7421'
+        x-400-2:
+          description: invalid subscription data.
+          schema:
+            $ref: '#/definitions/UsersError7600'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+
+  # device link/unlink
+  # ------------------
+  '/v5/users/{user_id}/devices.json':
+    parameters:
+      - name: user_id
+        type: string
+        in: path
+        required: true
+    post:
+      parameters:
+        - name: body
+          in: body
+          required: true
+          schema:
+            properties:
+              device_id:
+                type: string
+              'type':
+                type: string
+            required:
+              - device_id
+              - 'type'
+      responses:
+        201:
+          description: succeed
+        x-401-1:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/UsersError7412'
+        x-401-2:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+
+  '/v5/users/{user_id}/unlink/{id}.json':
+    parameters:
+      - name: id
+        description: device id
+        type: string
+        in: path
+        required: true
+      - name: user_id
+        description: user id
+        type: string
+        in: path
+        required: true
+    delete:
+      responses:
+        204:
+          description: unlinked
+        x-401-1:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/UsersError7412'
+        x-401-2:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: not found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+
+  # Chiptagupta: login history
+  # --------------------------
+  '/v4/users/{id}/login_history.json':
+    parameters:
+      - name: id
+        in: path
+        type: string
+        required: true
+    get:
+      description: Get list of login history for a specific user
+      operationId: Get_V4::Users#loginHistory_
+      produces:
+        - application/json
+      parameters:
+        - name: page
+          in: query
+          type: integer
+          default: 1
+          description: Used to navigate from page to page. Default is 1.
+        - name: per_page
+          in: query
+          type: integer
+          default: 10
+          description: Used to navigate from page to page. Default is 10. Maximum is 50.
+        - name: with_paging
+          in: query
+          type: boolean
+          default: false
+          description: Set this to true to get complete paging information. Default is false.
+        - name: app
+          in: query
+          type: string
+          description: The valid ID of the app making this request. An Invalid App error will be returned if app is invalid.
+          required: true
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/PagedSessionArray'
+        401:
+          description: Unauthorized
+        404:
+          description: Not Found
+
+
+  # Email verification.
+  # ------------------
+  '/v4/users/{user_id}/verify.json':
+    parameters:
+      - name: user_id
+        in: path
+        type: string
+        required: true
+    put:
+      description: verify the user's email address
+      operationId: Update_V4::Users#verify_
+      produces:
+        - application/json
+      parameters:
+        - name: token
+          in: header
+          type: string
+        - name: body
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/VerificationToken'
+      responses:
+        200:
+          description: succeed
+          schema:
+            $ref: '#/definitions/UserOkResponse'
+        x-400-1:
+          description: bad request
+          schema:
+            $ref: '#/definitions/UsersError7412'
+        x-400-2:
+          description: token expired.
+          schema:
+            $ref: '#/definitions/UsersError7920'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: Not Found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+    post:
+      description: resend confirmation email for verification
+      operationId: Create_V4::Users#resendEmail_
+      produces:
+        - application/json
+      parameters:
+        - name: token
+          in: header
+          type: string
+        - name: body
+          in: body
+          schema:
+            $ref: '#/definitions/VerificationProperty'
+      responses:
+        201:
+          description: succeed.
+          schema:
+            $ref: '#/definitions/UserOkResponse'
+        400:
+          description: bad request
+          schema:
+            $ref: '#/definitions/UsersError7412'
+        401:
+          description: invalid permission
+          schema:
+            $ref: '#/definitions/UsersError7408'
+        404:
+          description: Not Found
+          schema:
+            $ref: '#/definitions/UsersError7403'
+        422:
+          description: invalid email
+          schema:
+            $ref: '#/definitions/UsersError7303'
+        500:
+          description: internal server error
+          schema:
+            $ref: '#/definitions/UsersError7003'
+
+
+# Type definitions
+# ----------------
+
+definitions:
+  Pagination:
+    title: Pagination
+    type: object
+    properties:
+      previous:
+        description: URL to navigate backward. Can be null
+      next:
+        description: URL to navigate forward. Can be null
+    required:
+      - previous
+      - next
+  PagedSessionArray:
+    title: PagedSessionArray
+    type: object
+    properties:
+      count:
+        description: Number of items
+      more:
+        description: Whether there is more items yet to be returned
+      pagination:
+        $ref: '#/definitions/Pagination'
+      response:
+        type: array
+        items:
+          $ref: '#/definitions/Session'
+    required:
+    - more
+    - response
+  VerificationProperty:
+    title: VerificationProperty
+    type: object
+    properties:
+      property:
+        description: 'property field to validate. Ex: email'
+        type: string
+      redirect:
+        description: 'a redirect url to attach to verification link'
+        type: string
+    required:
+      - property
+  VerificationToken:
+    title: VerificationToken
+    type: object
+    properties:
+      verification_token:
+        description: verification tokeen sent to the user's email
+      property:
+        description: 'property field to validate. Ex: email'
+        type: string
+      value:
+        description: 'property value to validate. Ex: abc@viki.com'
+        type: string
+    required:
+      - verification_token
+      - property
+      - value
+  Session:
+    title: Session
+    description: Session details of a user for a particular login
+    type: object
+    properties:
+      id:
+        description: id of the user
+      time:
+        description: time of action
+      token:
+        description: Authentication token of the user
+      action:
+        description: can be one of create, update, delete
+      app:
+        description: Application from which the request was made
+      ip:
+        description: IP address of the request
+      country:
+        description: Country of request
+      user_type:
+        description: can be one of qc, staff, regular
+      authorization_flags:
+        $ref: '#/definitions/Flags'
+        #description: 'Availability of the auth flags in the token [db, ads, trial, vikipass, impersonate]'
+    required:
+      - id
+      - time
+      - token
+      - action
+      - app
+  Flags:
+    title: Flags
+    description: Authorization flags for a particular token
+    type: object
+    properties:
+      hd:
+        description: denotes if HD flag is present
+      ads:
+        description: denotes if Ads flag is present
+      vikiPass:
+        description: denotes if vikiPass flag is present
+      trial:
+        description: denotes if trial flag is present
+      impersonate:
+        description: denotes if impersonate flag is present
+    required:
+      - hd
+      - ads
+      - vikiPass
+      - trial
+      - impersonate
+  UserSummary:
+    properties:
+      id:
+        type: string
+      name:
+        type: string
+      username:
+        type: string
+      images:
+        properties:
+          avatar:
+            properties:
+              url:
+                type: string
+            required:
+              - url
+        required:
+          - avatar
+    required:
+      - id
+      - name
+      - username
+      - images
+  UserInfo:
+    properties:
+      id:
+        type: string
+      new:
+        type: boolean
+      anonymous:
+        type: boolean
+      email_verified:
+        type: boolean
+      facebook_id:
+        type: string
+      fb_connected:
+        type: boolean
+      rakuten_id:
+        type: string
+      rk_connected:
+        type: boolean
+      xbox_id:
+        type: string
+      xbox_connected:
+        type: boolean
+      google_id:
+        type: string
+      google_connected:
+        type: boolean
+      apple_id:
+        type: string
+      apple_connected:
+        type: boolean
+      username:
+        type: string
+      name:
+        type: string
+      created_at:
+        type: string
+        format: dateTime
+      updated_at:
+        type: string
+        format: dateTime
+      country:  # todo, move to enum type
+        type: string
+      staff:
+        type: boolean
+      qc:
+        type: boolean
+      qc_tier:
+        $ref: '#/definitions/UserQCTier'
+      abuser:
+        type: boolean
+      super_segmenter:
+        type: boolean
+      editor:
+        type: boolean
+      email_message:
+        type: boolean
+      email_video:
+        type: boolean
+      email_comment:
+        type: boolean
+      email_post:
+        type: boolean
+      email_newsletter:
+        type: boolean
+      email_watch_activity:
+        type: boolean
+      email_follow_activity:
+        type: boolean
+      share_watch_activity:
+        type: boolean
+      share_follow_activity:
+        type: boolean
+      gender:
+        type: string
+        enum:
+          - 'm'
+          - 'f'
+      birth_date:
+        type: string
+        format: date
+      images:
+        properties:
+          avatar:
+            properties:
+              url:
+                type: string
+            required:
+              - url
+        required:
+          - avatar
+      subtitles_count:
+        type: integer
+        format: uint64
+      segments_count:
+        type: integer
+        format: uint64
+      interface_language:
+        $ref: '#/definitions/UserLanguage'
+      content_language:
+        $ref: '#/definitions/UserLanguage'
+      show_spoilers:
+        type: boolean
+      hide_birth_date:
+        type: boolean
+      og_watch:
+        type: boolean
+      trial_end_at:
+        type: string
+        format: dateTime
+      subscriber:
+        type: boolean
+      incentives:
+        type: array
+        items:
+          type: string
+      # optional user info
+      email:
+        type: string
+        format: email
+      last_country_code:
+        $ref: '#/definitions/UserCountry'
+      flags:
+        properties:
+          ads:
+            description: show advertise or not
+            type: boolean
+          hd:
+            description: can watch hd video or not
+            type: boolean
+          verticals:
+            type: array
+            items:
+              type: string
+    required:
+      - id
+      - new
+      - anonymous
+      - email_verified
+      - facebook_id
+      - fb_connected
+      - xbox_id
+      - xbox_connected
+      - google_id
+      - google_connected
+      - apple_id
+      - apple_connected
+      - username
+      - name
+      - created_at
+      - updated_at
+      - country
+      - staff
+      - qc
+      - qc_tier
+      - abuser
+      - super_segmenter
+      - editor
+      - email_message
+      - email_video
+      - email_comment
+      - email_post
+      - email_newsletter
+      - email_watch_activity
+      - email_follow_activity
+      - share_watch_activity
+      - share_follow_activity
+      - gender
+      - birth_date
+      - images
+      - subtitles_count
+      - segments_count
+      - interface_language
+      - content_language
+      - show_spoilers
+      - hide_birth_date
+      - og_watch
+      - trial_end_at
+      - incentives
+  UserCreate:
+    properties:
+      name:
+        description: name must have no more than 70 characters.
+        type: string
+      email:
+        description: email must be valid email address and have at least 6 characters and no more than 60 characters.
+        type: string
+        format: email
+      password:
+        description: password must be no less than 6 characters.
+        type: string
+      language:
+        $ref: '#/definitions/UserLanguage'
+      email_newsletter:
+        type: string
+        enum:
+          - 'true'
+          - 'false'
+      source:
+        $ref: '#/definitions/UserRegistrationSource'
+      incentives:
+        type: array
+        items:
+          type: string
+      gender:
+        description: user's gender
+        type: string
+        enum:
+          - 'm'
+          - 'f'
+          - 'male'
+          - 'female'
+      birthday:
+        description: birthday in 'yyyy-mm-dd' format.
+        type: string
+        format: date
+    required:
+      - name
+      - email
+      - password
+  V5UserCreate:
+    properties:
+      name:
+        description: name must have no more than 70 characters.
+        type: string
+      email:
+        type: string
+        description: valid email format.
+        format: email
+      password:
+        description: password that at least 6 characters.
+        type: string
+      language:
+        $ref: '#/definitions/UserLanguage'
+      email_verified:
+        description: whether email already verified or not.
+        type: boolean
+      source:
+        $ref: '#/definitions/UserRegistrationSource'
+    required:
+      - name
+      - email
+      - password
+  UserRegistrationSource:
+    properties:
+      device:
+        type: string
+      method:
+        type: string
+      partner:
+        type: string
+      platform:
+        type: string
+  UserUpdate:
+    properties:
+      email:
+        description: optional, valid email address thatis at least 6 characters and less or equal 60 characters.
+        type: string
+        format: email
+      email_verified:
+        type: boolean
+      profile_image:
+        type: string
+      name:
+        description: optional, user's display name that no more than 70 characters.
+        type: string
+      password:
+        description: optional, password that want change to, it requires minimal 6 chracters.
+        type: string
+      current_password:
+        description: optional, current password.
+        type: string
+      password_confirmation:
+        description: optional, when presented, must equal to password field.
+        type: string
+      interface_language:
+        $ref: '#/definitions/UserLanguage'
+      content_language:
+        $ref: '#/definitions/UserLanguage'
+      og_watch:
+        type: string
+      email_message:
+        type: string
+      email_video:
+        type: string
+      email_newsletter:
+        type: string
+      username:
+        description: optional, user's internal name, minimal 3 characters, no less than 20 characters. letters, digits and underline only.
+        type: string
+      gender:
+        type: string
+      about:
+        type: string
+      share_watch_activity:
+        description: whether share watch activity or not
+        type: string
+        enum:
+          - 'true'
+          - 'false'
+      share_follow_activity:
+        description: whether share follow activity or not
+        type: string
+        enum:
+          - 'true'
+          - 'false'
+      email_watch_activity:
+        description: whether email watch activity or not
+        type: string
+        enum:
+          - 'true'
+          - 'false'
+      email_follow_activity:
+        description: whether email follow activity or not
+        type: string
+        enum:
+          - 'true'
+          - 'false'
+      birthday:
+        type: string
+        format: date
+      qc:
+        description: whether user is qc or not. qc_tier need to be consistent with qc value.
+        type: boolean
+      staff:
+        type: boolean
+      super_segmenter:
+        type: boolean
+      enabled:
+        type: boolean
+      abuser:
+        type: boolean
+      qc_tier:
+        $ref: '#/definitions/UserQCTier'
+      clear_fb_id:
+        type: boolean
+      clear_rakuten_id:
+        type: boolean
+      clear_google_id:
+        type: boolean
+      clear_xbox_id:
+        type: boolean
+      autoplay:
+        type: boolean
+        description: Whether or not autoplay should be enabled for this user.
+  UsersError11:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: invalid or expired token
+        enum:
+          - 11
+      error:
+        type: string
+        description: 'error details'
+  UsersError7003:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: There was an error in the application
+        enum:
+          - 7003
+      error:
+        type: string
+        description: 'error details'
+  UsersError7301:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Email already exists
+        enum:
+          - 7301
+      error:
+        type: string
+        description: 'error details'
+  UsersError7302:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: username already exists.
+        enum:
+          - 7302
+      error:
+        type: string
+        description: 'error details'
+  UsersError7303:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Email address is invalid.
+        enum:
+          - 7303
+      error:
+        type: string
+        description: 'error details'
+  UsersError7401:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Failed to create user
+        enum:
+          - 7401
+      error:
+        type: string
+        description: 'error details'
+  UsersError7403:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: (User) not found / Invalid username of password
+        enum:
+          - 7403
+      error:
+        type: string
+        description: 'error details'
+  UsersError7404:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Tried and failed to merge anonymous account to existing account (Session)
+        enum:
+          - 7404
+      error:
+        type: string
+        description: 'error details'
+  UsersError7405:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Failed to merge accounts. Both have subscriptions (Session) | Cannot create new subscription for an anonymous user
+        enum:
+          - 7405
+      error:
+        type: string
+        description: 'error details'
+  UsersError7408:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Invalid permissions
+        enum:
+          - 7408
+      error:
+        type: string
+        description: 'error details'
+  UsersError7412:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Invalid request
+        enum:
+          - 7412
+      error:
+        type: string
+        description: 'error details'
+  UsersError7416:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: The user is disabled.
+        enum:
+          - 7416
+      error:
+        type: string
+        description: 'error details'
+  UsersError7421:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: User need login first.
+        enum:
+          - 7421
+      error:
+        type: string
+        description: 'error details'
+  UsersError7500:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Problem with the access token or the Facebook connection (Facebook)
+        enum:
+          - 7500
+      error:
+        type: string
+        description: 'error details'
+  UsersError7501:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: User already linked to different account (Facebook)
+        enum:
+          - 7501
+      error:
+        type: string
+        description: 'error details'
+  UsersError7505:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Problem with the request token or the Rakuten connection (Rakuten)
+        enum:
+          - 7505
+      error:
+        type: string
+        description: 'error details'
+  UsersError7506:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: User already linked to different account (Rakuten)
+        enum:
+          - 7506
+      error:
+        type: string
+        description: 'error details'
+  UsersError7510:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Token came empty (Xbox)
+        enum:
+          - 7510
+      error:
+        type: string
+        description: 'error details'
+  UsersError7511:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: There was a problem with the Token (Xbox)
+        enum:
+          - 7511
+      error:
+        type: string
+        description: 'error details'
+  UsersError7512:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Token is expired (Xbox)
+        enum:
+          - 7512
+      error:
+        type: string
+        description: 'error details'
+  UsersError7515:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Problem with access token or the Google+ connection (Google+)
+        enum:
+          - 7515
+      error:
+        type: string
+        description: 'error details'
+  UsersError7516:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: User already linked to a different account (Google+)
+        enum:
+          - 7516
+      error:
+        type: string
+        description: 'error details'
+  UsersError7600:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Invalid subscription data
+        enum:
+          - 7600
+      error:
+        type: string
+        description: 'error details'
+  UsersError7601:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Failed to create subscription
+        enum:
+          - 7601
+      error:
+        type: string
+        description: 'error details'
+  UsersError7615:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: User already has active subscription
+        enum:
+          - 7615
+      error:
+        type: string
+        description: 'error details'
+  UsersError7616:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Could not reach payment server or invalid subscription (Apple)
+        enum:
+          - 7616
+      error:
+        type: string
+        description: 'error details'
+  UsersError7617:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Receipt invalid or expired (Apple)
+        enum:
+          - 7617
+      error:
+        type: string
+        description: 'error details'
+  UsersError7618:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Subscription linked to different user (Apple)
+        enum:
+          - 7618
+      error:
+        type: string
+        description: 'error details'
+  UsersError7700:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: No device_id is associated with this registration_code
+        enum:
+          - 7700
+      error:
+        type: string
+        description: 'error details'
+  UsersError7701:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: User doesn't have such device
+        enum:
+          - 7701
+      error:
+        type: string
+        description: 'error details'
+  UsersError7920:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Verification token is expired
+        enum:
+          - 7920
+      error:
+        type: string
+        description: 'error details'
+  UsersError500:
+    properties:
+      vcode:
+        type: integer
+        format: uint64
+        description: Internal server error.
+        enum:
+          - 500
+      error:
+        type: string
+        description: 'error details'
+  InvalidUserParam:
+    description: parameters validation fail
+    properties:
+      vcode:
+        description: '7304'
+        type: integer
+        format: uint64
+        enum:
+          - 7304
+      param_errors:
+        $ref: '#/definitions/ExampleFieldsValidationErrors'
+  ExampleFieldsValidationErrors:
+    description: an example of filed validation error.
+    properties:
+      field_names:
+        type: array
+        items:
+          $ref: '#/definitions/FieldValidationErrors'
+  FieldValidationErrors:
+    type: string
+    description: bad_parameter means an invalid prameter given, like a string given for int; zero_value means field can't be empty. invalid_format means param not follow a required format. wrong means not same value as system side. mismatch means not equal to another field. not_bool means not a valid bool value.
+    enum:
+      - 'zero_value'
+      - 'bad_parameter'
+      - 'min=6'
+      - 'max=70'
+      - 'invalid_email'
+      - 'invalid_format'
+      - 'not_bool'
+      - 'wrong'
+      - 'mismatch=password'
+
+  UserQCTier:
+    type: integer
+    enum:
+      - 0
+      - 1
+      - 2
+      - 3
+  V4SessionCreate:
+    properties:
+      login_id:
+        type: string
+      username:
+        type: string
+      password:
+        type: string
+      msft_token:
+        type: string
+      apple_token:
+        type: string
+      facebook_token:
+        type: string
+      google_token:
+        description: google oauth2 access token
+        type: string
+      google_id_token:
+        description: google id token
+        type: string
+      rakuten_params:
+        type: string
+      source:
+        $ref: '#/definitions/UserRegistrationSource'
+      incentives:
+        type: array
+        items:
+          type: string
+      device_token:
+        type: string
+      'type':
+        type: string
+      rakuten_auth_code:
+        type: string
+  UserSession:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/UserInfo'
+    required:
+      - token
+      - user
+  UserResetPasswordReq:
+    properties:
+      email:
+        description: valid email address
+        type: string
+        format: email
+    required:
+      - email
+  UserResetPassword:
+    properties:
+      password:
+        description: password that request want set to, minimal 6 characters.
+        type: string
+      reset_password_token:
+        type: string
+      password_confirmation:
+        description: confirmation purpose only, should equal to password that request want set to.
+        type: string
+    required:
+      - password
+      - reset_password_token
+      - password_confirmation
+  UserBadge:
+    properties:
+      id:
+        type: string
+      images:
+        properties:
+          icon:
+            properties:
+              url:
+                type: string
+            required:
+              - url
+        required:
+          - icon
+      metric:
+        type: integer
+        format: uint64
+      track_id:
+        type: string
+      titles:
+        type: array
+        items:
+          type: string
+    required:
+      - id
+      - images
+      - metric
+      - track_id
+      - titles
+  UserTrack:
+    properties:
+      id:
+        type: string
+      condition:
+        type: string
+      titles:
+        type: array
+        items:
+          type: array
+          items:
+            type: string
+    required:
+      - id
+      - condition
+      - titles
+  UserLanguage:
+    type: string
+    description: language code in 2 characters
+    enum:
+      - 'ab'
+      - 'aa'
+      - 'af'
+      - 'ak'
+      - 'sq'
+      - 'al'
+      - 'am'
+      - 'ag'
+      - 'ar'
+      - 'an'
+      - 'hy'
+      - 'ra'
+      - 'as'
+      - 'at'
+      - 'av'
+      - 'ay'
+      - 'az'
+      - 'bm'
+      - 'ba'
+      - 'eu'
+      - 'be'
+      - 'bn'
+      - 'bh'
+      - 'bi'
+      - 'bs'
+      - 'br'
+      - 'bg'
+      - 'my'
+      - 'km'
+      - 'ca'
+      - 'ch'
+      - 'ce'
+      - 'zh'
+      - 'zt'
+      - 'kw'
+      - 'co'
+      - 'cr'
+      - 'hr'
+      - 'cs'
+      - 'da'
+      - 'dv'
+      - 'nl'
+      - 'dz'
+      - 'en'
+      - 'eo'
+      - 'et'
+      - 'fo'
+      - 'fj'
+      - 'fi'
+      - 'fr'
+      - 'gl'
+      - 'ka'
+      - 'de'
+      - 'el'
+      - 'kl'
+      - 'gn'
+      - 'gu'
+      - 'ha'
+      - 'he'
+      - 'hi'
+      - 'hm'
+      - 'hu'
+      - 'is'
+      - 'io'
+      - 'id'
+      - 'ia'
+      - 'ie'
+      - 'iu'
+      - 'ik'
+      - 'ga'
+      - 'it'
+      - 'ja'
+      - 'jv'
+      - 'kn'
+      - 'ks'
+      - 'cb'
+      - 'mu'
+      - 'kk'
+      - 'ky'
+      - 'rn'
+      - 'tm'
+      - 'ko'
+      - 'ku'
+      - 'lo'
+      - 'la'
+      - 'lv'
+      - 'li'
+      - 'ln'
+      - 'lt'
+      - 'jb'
+      - 'nd'
+      - 'lb'
+      - 'mk'
+      - 'mg'
+      - 'ms'
+      - 'ml'
+      - 'mt'
+      - 'gv'
+      - 'mi'
+      - 'mr'
+      - 'mh'
+      - 'zm'
+      - 'mo'
+      - 'mn'
+      - 'nh'
+      - 'na'
+      - 'ne'
+      - 'no'
+      - 'nn'
+      - 'oc'
+      - 'or'
+      - 'om'
+      - 'pi'
+      - 'ps'
+      - 'fa'
+      - 'pl'
+      - 'pt'
+      - 'pa'
+      - 'qu'
+      - 'rm'
+      - 'ro'
+      - 'ru'
+      - 'rw'
+      - 'sm'
+      - 'sg'
+      - 'sa'
+      - 'sc'
+      - 'gd'
+      - 'sr'
+      - 'sh'
+      - 'tn'
+      - 'sn'
+      - 'sb'
+      - 'se'
+      - 'sd'
+      - 'si'
+      - 'sk'
+      - 'sl'
+      - 'so'
+      - 'st'
+      - 'es'
+      - 'su'
+      - 'sw'
+      - 'ss'
+      - 'sv'
+      - 'tl'
+      - 'tg'
+      - 'ta'
+      - 'tt'
+      - 'te'
+      - 'th'
+      - 'bo'
+      - 'ti'
+      - 'tp'
+      - 'tq'
+      - 'to'
+      - 'ts'
+      - 'tr'
+      - 'tk'
+      - 'tw'
+      - 'uk'
+      - 'ur'
+      - 'ug'
+      - 'uz'
+      - 'vi'
+      - 'vo'
+      - 'wa'
+      - 'cy'
+      - 'fy'
+      - 'wo'
+      - 'xh'
+      - 'yi'
+      - 'yo'
+      - 'za'
+      - 'zu'
+  SubscriptionCreate:
+    properties:
+      apple:
+        properties:
+          plan_id:
+            type: string
+          apple_token:
+            type: string
+        required:
+          - plan_id
+          - apple_token
+      source:
+        $ref: '#/definitions/UserRegistrationSource'
+  UserCountry:
+    type: string
+    enum:
+      - 'ad'
+      - 'ae'
+      - 'af'
+      - 'ag'
+      - 'ai'
+      - 'al'
+      - 'am'
+      - 'an'
+      - 'ao'
+      - 'aq'
+      - 'ar'
+      - 'as'
+      - 'at'
+      - 'au'
+      - 'aw'
+      - 'ax'
+      - 'az'
+      - 'ba'
+      - 'bb'
+      - 'bd'
+      - 'be'
+      - 'bf'
+      - 'bg'
+      - 'bh'
+      - 'bi'
+      - 'bj'
+      - 'bm'
+      - 'bn'
+      - 'bo'
+      - 'br'
+      - 'bs'
+      - 'bt'
+      - 'bv'
+      - 'bw'
+      - 'by'
+      - 'bz'
+      - 'ca'
+      - 'cc'
+      - 'cd'
+      - 'cf'
+      - 'cg'
+      - 'ch'
+      - 'ci'
+      - 'ck'
+      - 'cl'
+      - 'cm'
+      - 'cn'
+      - 'co'
+      - 'cr'
+      - 'cu'
+      - 'cv'
+      - 'cx'
+      - 'cy'
+      - 'cz'
+      - 'de'
+      - 'dj'
+      - 'dk'
+      - 'dm'
+      - 'do'
+      - 'dz'
+      - 'ec'
+      - 'ee'
+      - 'eg'
+      - 'eh'
+      - 'er'
+      - 'es'
+      - 'et'
+      - 'fi'
+      - 'fj'
+      - 'fk'
+      - 'fm'
+      - 'fo'
+      - 'fr'
+      - 'ga'
+      - 'gb'
+      - 'gd'
+      - 'ge'
+      - 'gf'
+      - 'gg'
+      - 'gh'
+      - 'gi'
+      - 'gl'
+      - 'gm'
+      - 'gn'
+      - 'gp'
+      - 'gq'
+      - 'gr'
+      - 'gs'
+      - 'gt'
+      - 'gu'
+      - 'gw'
+      - 'gy'
+      - 'hk'
+      - 'hm'
+      - 'hn'
+      - 'hr'
+      - 'ht'
+      - 'hu'
+      - 'id'
+      - 'ie'
+      - 'il'
+      - 'im'
+      - 'in'
+      - 'io'
+      - 'iq'
+      - 'ir'
+      - 'is'
+      - 'it'
+      - 'je'
+      - 'jm'
+      - 'jo'
+      - 'jp'
+      - 'ke'
+      - 'kg'
+      - 'kh'
+      - 'ki'
+      - 'km'
+      - 'kn'
+      - 'kp'
+      - 'kr'
+      - 'kw'
+      - 'ky'
+      - 'kz'
+      - 'la'
+      - 'lb'
+      - 'lc'
+      - 'li'
+      - 'lk'
+      - 'lr'
+      - 'ls'
+      - 'lt'
+      - 'lu'
+      - 'lv'
+      - 'ly'
+      - 'ma'
+      - 'mc'
+      - 'md'
+      - 'me'
+      - 'mf'
+      - 'mg'
+      - 'mh'
+      - 'mk'
+      - 'ml'
+      - 'mm'
+      - 'mn'
+      - 'mo'
+      - 'mp'
+      - 'mq'
+      - 'mr'
+      - 'ms'
+      - 'mt'
+      - 'mu'
+      - 'mv'
+      - 'mw'
+      - 'mx'
+      - 'my'
+      - 'mz'
+      - 'na'
+      - 'nc'
+      - 'ne'
+      - 'nf'
+      - 'ng'
+      - 'ni'
+      - 'nl'
+      - 'no'
+      - 'np'
+      - 'nr'
+      - 'nu'
+      - 'nz'
+      - 'om'
+      - 'pa'
+      - 'pe'
+      - 'pf'
+      - 'pg'
+      - 'ph'
+      - 'pk'
+      - 'pl'
+      - 'pm'
+      - 'pn'
+      - 'pr'
+      - 'ps'
+      - 'pt'
+      - 'pw'
+      - 'py'
+      - 'qa'
+      - 'rd'
+      - 're'
+      - 'ro'
+      - 'rs'
+      - 'ru'
+      - 'rw'
+      - 'sa'
+      - 'sb'
+      - 'sc'
+      - 'sd'
+      - 'se'
+      - 'sg'
+      - 'sh'
+      - 'si'
+      - 'sj'
+      - 'sk'
+      - 'sl'
+      - 'sm'
+      - 'sn'
+      - 'so'
+      - 'sr'
+      - 'st'
+      - 'sv'
+      - 'sy'
+      - 'sz'
+      - 'tc'
+      - 'td'
+      - 'tf'
+      - 'tg'
+      - 'th'
+      - 'tj'
+      - 'tk'
+      - 'tl'
+      - 'tm'
+      - 'tn'
+      - 'to'
+      - 'tr'
+      - 'tt'
+      - 'tv'
+      - 'tw'
+      - 'tz'
+      - 'ua'
+      - 'ug'
+      - 'um'
+      - 'us'
+      - 'uy'
+      - 'uz'
+      - 'va'
+      - 'vc'
+      - 've'
+      - 'vg'
+      - 'vi'
+      - 'vn'
+      - 'vu'
+      - 'wf'
+      - 'ws'
+      - 'ye'
+      - 'yt'
+      - 'za'
+      - 'zm'
+      - 'zw'
+      - 'zy'
+      - 'zz'
+  UserOkResponse:
+    properties:
+      ok:
+        type: boolean
+        enum:
+          - true
+    required:
+      - ok
+

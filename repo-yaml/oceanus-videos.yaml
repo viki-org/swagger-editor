@@ -1,0 +1,343 @@
+paths:
+  "/containers/{containerId}/videos.json":
+    parameters:
+      - name: containerId
+        required: true
+        in: path
+        type: string
+        description: The ID of the container.
+        pattern: ^\d+c$
+
+    post:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      tags:
+        - Create
+        - Videos
+      summary: Creates a video.
+      description: "This route allows channel managers or apps with manage
+      permissions to create unlicensed videos in a particular container.
+      It is intended for use with fan channels, and cannot be used to create a
+      licensed video.
+
+
+      This route requires either a user token belonging to a channel manager of
+      the container, or the request to be signed by an app with `manage`
+      permissions."
+      parameters:
+        - name: Video Properties
+          in: body
+          schema:
+            type: object
+            properties:
+              url:
+                description: The URL at which the video can be found.
+                type: string
+              hardsub_languages:
+                description: "Language codes of any hard subtitles (those baked
+                into the video itself.)"
+                type: array
+                items:
+                  type: string
+              type:
+                description: The type of the video.
+                type: string
+                enum:
+                  - clip
+                  - episode
+                  - movie
+                  - music_video
+                  - news_clip
+                  - trailer
+              origin_language:
+                description: The language of the videos.
+                type: string
+              number:
+                description: The episode number of this video.
+                type: integer
+              root_id:
+                type: string
+                pattern: ^\d+vr$
+      responses:
+        201:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/VideoDBResponse'
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+        401:
+          description: "Returned if the user isn't a channel manager (when a
+          user token is provided), or if the app doesn't have manage permissions
+          (if no token is provided, and the request is signed)."
+          schema:
+            $ref: '#/definitions/OceanusResponseDenied'
+
+  "/containers/{containerId}/videos/{id}.json":
+    parameters:
+      - name: containerId
+        required: true
+        in: path
+        type: string
+        description: The ID of the container.
+        pattern: ^\d+c$
+      - name: id
+        required: true
+        in: path
+        type: string
+        description: The ID of the video.
+        pattern: ^\d+v$
+
+    put:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      tags:
+        - Update
+        - Videos
+      summary: Updates a video (for fan channels).
+      description: "This route allows channel managers or apps with the `manage`
+      permission to edit certain properties of a video. It's primarily intended
+      for use with fan channels.
+
+
+      This route requires either a user token belonging to a channel manager of
+      the video's container, or the request to be signed by an app with `manage`
+      permissions."
+      parameters:
+        - name: Video Properties
+          in: body
+          schema:
+            type: object
+            properties:
+              origin_language:
+                type: string
+                description: The language of the video's content.
+              url:
+                type: string
+                description: The URL at which the video can be found.
+              credits_marker:
+                type: integer
+                description: "The timestamp at which the credits of the video
+                start playing, in seconds."
+              hardsub_languages:
+                type: array
+                description: "Language codes of any hard subtitles (those baked
+                into the video itself.)"
+                items:
+                  type: string
+      responses:
+        200:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/VideoDBResponse'
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+        401:
+          description: "Returned if the user isn't a channel manager (when a
+          user token is provided), or if the app doesn't have manage permissions
+          (if no token is provided, and the request is signed)."
+          schema:
+            $ref: '#/definitions/OceanusResponseDenied'
+        404:
+          description: Returned if the video cannot be found.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+    delete:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      tags:
+        - Delete
+        - Videos
+      summary: Deletes a video (for fan channels).
+      description: "This route allows channel managers or apps with the `manage`
+      permission to delete a video. It's primarily intended for use with fan
+      channels.
+
+      This route requires either a user token belonging to a channel manager of
+      the video's container, or the request to be signed by an app with `manage`
+      permissions."
+      responses:
+        204:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/OceanusResponseOKTrue'
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+        401:
+          description: "Returned if the user isn't a channel manager (when a
+          user token is provided), or if the app doesn't have manage permissions
+          (if no token is provided, and the request is signed)."
+          schema:
+            $ref: '#/definitions/OceanusResponseDenied'
+        404:
+          description: Returned if the video cannot be found.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+  "/videos/{id}.json":
+    parameters:
+      - name: id
+        required: true
+        in: path
+        type: string
+        description: The ID of the video.
+        pattern: ^\d+v$
+
+    put:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+        - Token: []
+      tags:
+        - Videos
+        - Update
+        - Signed Request Required
+      summary: Updates a video (for `manage` apps).
+      description: "This route allows `manage` apps to make changes to the
+      properties of a video."
+      parameters:
+        - name: Video Properties
+          in: body
+          schema:
+            type: object
+            properties:
+              state:
+                type: string
+                description: The state of the video.
+                enum:
+                  - deleted
+                  - normal
+                  - pending
+              hardsub_languages:
+                type: array
+                description: Languages for which this video has hard subtitles.
+                items:
+                  type: string
+              image_url:
+                type: string
+                description: The URL to the poster image of the video.
+      responses:
+        200:
+          description: Returned upon success.
+          schema:
+            $ref: '#/definitions/VideoDBResponse'
+        400:
+          description: Returned when any error occurs.
+          schema:
+            $ref: '#/definitions/OceanusResponseInvalid'
+        401:
+          description: Returned if the calling app doesn't have manage permissions.
+          schema:
+            $ref: '#/definitions/OceanusResponseDenied'
+        404:
+          description: Returned if the video cannot be found.
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+  "/videos/{id}/seo.json":
+    parameters:
+      - name: id
+        required: true
+        in: path
+        type: string
+        description: The ID of the video.
+        pattern: ^\d+v$
+
+    get:
+      security:
+        - ClientId: []
+      tags:
+        - Videos
+        - Read
+      summary: "Returns SEO titles and descriptions for the video in all
+      languages they're available in."
+      responses:
+        200:
+          description: The SEO titles and descriptions for the video.
+          schema:
+            type: object
+            properties:
+              title:
+                type: object
+                description: SEO titles for the video, keyed by language.
+              description:
+                type: object
+                description: SEO descriptions for the video, keyed by language.
+        404:
+          description: "Returned if the video doesn't exist, or if it has no SEO
+          titles or descriptions."
+          schema:
+            $ref: '#/definitions/OceanusResponseNotFound'
+
+definitions:
+  VideoDBResponse:
+    type: object
+    title: Video
+    properties:
+      id:
+        type: string
+        description: The ID of the video.
+      type:
+        type: string
+        description: The type of the video.
+        enum:
+         - clip
+         - episode
+         - movie
+         - music_video
+         - news_clip
+         - trailer
+      root_id:
+        type: string
+      container_id:
+        type: string
+        description: The container the video belongs to.
+      hosted:
+        type: boolean
+        description: Whether the video is hosted by Viki itself.
+      duration:
+        type: integer
+        description: The running time of the video, in seconds.
+      number:
+        type: integer
+        description: The episode number of this video.
+      origin_language:
+        type: string
+        description: The language of this video's content.
+      state:
+        type: string
+        description: The state of the video.
+        enum:
+          - deleted
+          - normal
+          - pending
+      air_date:
+        type: string
+        description: The air date of the video on Viki.
+        format: ISO8601 Date
+      licensed:
+        type: boolean
+        description: Whether the video is licensed from a content provider.
+      rating:
+        type: string
+        description: The content rating of the video.
+      broadcast_date:
+        type: string
+        description: The broadcast date of the video on its origin network.
+      hardsub_languages:
+        type: array
+        description: Languages for which this video has hard subtitles.
+        items:
+          type: string

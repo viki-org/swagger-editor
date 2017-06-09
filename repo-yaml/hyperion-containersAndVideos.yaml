@@ -1,0 +1,991 @@
+paths:
+  "/{containerType}.json":
+    parameters:
+      - name: containerType
+        required: true
+        in: path
+        type: string
+        description: The type of containers to retrieve.
+        enum:
+          - containers
+          - artists
+          - films
+          - news
+          - series
+    get:
+      security:
+        - ClientId: []
+        - Token: []
+      tags:
+        - Containers
+        - Read
+      description: "This route is used to retrieve all containers of a given type.
+      Note that the API will return only containers which are accessible to the
+      calling app, user, and country."
+      parameters:
+        - name: with_paging
+          required: false
+          in: query
+          type: boolean
+          description: Whether or not pagination information should be included in the response.
+          default: false
+        - name: blocked
+          required: false
+          in: query
+          type: boolean
+          description: Whether or not to return containers which are blocked for the current user/app/country combination.
+          default: false
+        - name: sort
+          required: false
+          in: query
+          type: boolean
+          description: The property to order the returned containers by.
+          enum:
+            - average_rating
+            - newest_video
+            - views
+            - views_recent
+            - release_date
+            - trending
+            - viki_air_time
+        - name: content_owner
+          required: false
+          in: query
+          type: string
+          description: Return only containers from this content owner.
+        - name: subtype
+          required: false
+          in: query
+          type: string
+          description: Return only containers with this subtype.
+          enum:
+           - normal
+           - creators
+        - name: vertical
+          required: false
+          in: query
+          type: string
+          description: Return only containers that belong to this vertical.
+        - name: has_paywall_content
+          required: false
+          in: query
+          type: boolean
+          description: If `true`, return only containers with some content behind a paywall. Unspecified behaviour when `false`.
+        - name: year
+          required: false
+          in: query
+          type: integer
+          description: Return only containers that originally aired during this year.
+        - name: exclusive
+          required: false
+          in: query
+          type: boolean
+          description: If `true`, return only containers which are exclusive to Viki. Unspecified behaviour when `false`.
+        - name: average_user_rating
+          required: false
+          in: query
+          type: integer
+          description: Return only containers with this average rating (rounded).
+        - name: watch_schedule
+          required: false
+          in: query
+          type: integer
+          description: If `1`, enable the other watch schedule flags. Unspecified behaviour when not `1`.
+        - name: ws_start_time
+          required: false
+          in: query
+          type: integer
+          description: If `watch_schedule` is `1`, return only containers with the latest video airing after this Unix epoch time (in seconds).
+        - name: ws_end_time
+          required: false
+          in: query
+          type: integer
+          description: If `watch_schedule` is `1`, return only containers with the latest video airing before this Unix epoch time (in seconds).
+      responses:
+        200:
+          description: The container listing, returned on success.
+          schema:
+            $ref: "#/definitions/HyperionContainerListing"
+
+  "/{containerType}/{id}.json":
+    parameters:
+      - name: containerType
+        in: path
+        required: true
+        type: string
+        description: "The type of container. The value of this parameter is not
+        used by this route, and does not have to match the type of the container
+        being retrieved."
+        enum:
+          - containers
+          - artists
+          - films
+          - news
+          - series
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: The ID of the container.
+        pattern: ^\d+c$
+    get:
+      description: This route is used to retrieve the details of a particular container.
+      security:
+        - ClientId: []
+        - Token: []
+      tags:
+        - Containers
+        - Read
+      responses:
+        200:
+          description: The container, returned on success.
+          schema:
+            $ref: "#/definitions/HyperionContainerDetails"
+        404:
+          description: Returned when no container with the given ID could be found.
+          schema:
+            $ref: "#/definitions/HyperionErrorNotFound"
+
+  "/{containerType}/{id}/availability.json":
+    parameters:
+      - name: containerType
+        in: path
+        required: true
+        type: string
+        description: "The type of container. The value of this parameter is not
+        used by this route, and does not have to match the type of the container
+        being retrieved."
+        enum:
+          - containers
+          - artists
+          - films
+          - news
+          - series
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: The ID of the container.
+        pattern: ^\d+c$
+    get:
+      description: "This route is used to retrieve the current availability of a
+      container across all countries for the current user."
+      security:
+        - ClientId: []
+        - Token: []
+      tags:
+        - Containers
+        - Availability
+        - Read
+      responses:
+        200:
+          description: "Container availability information, returned on success.
+          Note that this route always returns even if there is no container with
+          the requested ID."
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/HyperionAvailabilityInfo"
+
+  "/{containerType}/{id}/{videoType}.json":
+    parameters:
+      - name: containerType
+        in: path
+        required: true
+        type: string
+        description: "The type of container. The value of this parameter is not
+        used by this route, and does not have to match the type of the container
+        being retrieved."
+        enum:
+          - containers
+          - artists
+          - films
+          - news
+          - series
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: The ID of the container.
+        pattern: ^\d+c$
+      - name: videoType
+        in: path
+        required: true
+        type: string
+        description: The type of video.
+        enum:
+          - videos
+          - clips
+          - episodes
+          - films
+          - music_videos
+          - news_clips
+          - trailers
+    get:
+      security:
+        - ClientId: []
+        - Token: []
+      tags:
+        - Containers
+        - Videos
+        - Read
+      description: "This route is used to retrieve all videos of a particular
+      type belonging to a container. Note that the API will only return videos
+      which are accessible to the calling app, user, and country."
+      parameters:
+        - name: watch_schedule
+          required: false
+          in: query
+          type: integer
+          description: If `1`, enable the other watch schedule flags. Unspecified behaviour when not `1`.
+        - name: ws_start_time
+          required: false
+          in: query
+          type: integer
+          description: If `watch_schedule` is `1`, return only videos airing after this Unix epoch time (in seconds).
+        - name: ws_end_time
+          required: false
+          in: query
+          type: integer
+          description: If `watch_schedule` is `1`, return only videos airing before this Unix epoch time (in seconds).
+        - name: parent_subtype
+          required: false
+          in: query
+          type: string
+          description: Filters results to show only videos belonging to a container of this subtype.
+          enum:
+            - normal
+            - creators
+      responses:
+        200:
+          description: The requested videos, returned on success.
+          schema:
+            $ref: "#/definitions/HyperionVideoListing"
+
+  "/{videoType}.json":
+    parameters:
+      - name: videoType
+        in: path
+        required: true
+        type: string
+        description: The type of videos to retrieve.
+        enum:
+          - videos
+          - clips
+          - episodes
+          - films
+          - music_videos
+          - news_clips
+          - trailers
+    get:
+      security:
+        - ClientId: []
+        - Token: []
+      tags:
+        - Videos
+        - Read
+      description: "This route is used to retrieve all videos of a particular
+      type. Note that the API will only return videos which are accessible to
+      the calling app, user, and country."
+      parameters:
+        - name: with_paging
+          required: false
+          in: query
+          type: boolean
+          description: Whether or not pagination information should be included in the response.
+          default: false
+        - name: has_stream
+          required: false
+          in: query
+          type: boolean
+          description: Filter the results to videos which do or do not have a stream hosted by Viki.
+          default: true
+        - name: exclusive
+          required: false
+          in: query
+          type: boolean
+          description: "If true, filter the results to those which are exclusive to Viki. This parameter
+          should be omitted if no filtering is desired; behaviour is undefined when it is set to false."
+        - name: vertical
+          required: false
+          in: query
+          type: string
+          description: Filter the results to videos which are behind a particular paywall vertical.
+          pattern: ^\d+pv$
+        - name: watch_schedule
+          required: false
+          in: query
+          type: integer
+          description: If `1`, enable the other watch schedule flags. Unspecified behaviour when not `1`.
+        - name: ws_start_time
+          required: false
+          in: query
+          type: integer
+          description: If `watch_schedule` is `1`, return only videos airing after this Unix epoch time (in seconds).
+        - name: ws_end_time
+          required: false
+          in: query
+          type: integer
+          description: If `watch_schedule` is `1`, return only videos airing before this Unix epoch time (in seconds).
+      responses:
+        200:
+          description: The video listing, returned on success.
+          schema:
+            $ref: "#/definitions/HyperionVideoListing"
+
+  "/{videoType}/{id}.json":
+    parameters:
+      - name: videoType
+        in: path
+        required: true
+        type: string
+        description: "The type of video. The value of this parameter is not used
+        by this route, and does not have to match the type of video being retrieved."
+        enum:
+          - videos
+          - clips
+          - episodes
+          - films
+          - music_videos
+          - news_clips
+          - trailers
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: The ID of the video.
+        pattern: ^\d+v$
+    get:
+      security:
+        - ClientId: []
+        - Token: []
+      tags:
+        - Videos
+        - Read
+      description: This route is used to retrieve the details of a particular video.
+      responses:
+        200:
+          description: The video, returned on success.
+          schema:
+            $ref: "#/definitions/HyperionVideoDetails"
+        404:
+          description: Returned when no video with the given ID could be found.
+          schema:
+            $ref: "#/definitions/HyperionErrorNotFound"
+
+  "/{videoType}/{id}/availability.json":
+    parameters:
+      - name: videoType
+        in: path
+        required: true
+        type: string
+        description: "The type of video. The value of this parameter is not used
+        by this route, and does not have to match the type of video being retrieved."
+        enum:
+          - videos
+          - clips
+          - episodes
+          - films
+          - music_videos
+          - news_clips
+          - trailers
+      - name: id
+        in: path
+        required: true
+        type: string
+        description: The ID of the video.
+        pattern: ^\d+v$
+    get:
+      security:
+        - ClientId: []
+        - Token: []
+      tags:
+        - Videos
+        - Availability
+        - Read
+      description: "This route is used to retrieve the current availability of a
+      video across all countries for the current user."
+      responses:
+        200:
+          description: "Video availability information, returned on success.
+          Note that this route always returns even if there is no video with the
+          requested ID."
+          schema:
+            $ref: "#/definitions/HyperionAvailabilityInfo"
+
+definitions:
+  HyperionContainerListing:
+    title: Container Listing
+    type: object
+    properties:
+      more:
+        type: boolean
+        description: Whether there are more pages of results after this one.
+      response:
+        type: array
+        description: The containers in the listing.
+        items:
+          $ref: "#/definitions/HyperionContainerDetails"
+
+  HyperionContainerDetails:
+    title: Container Details
+    allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+            description: The container's ID.
+          type:
+            type: string
+            description: The type of the container.
+            enum:
+              - artist
+              - film
+              - news
+              - series
+          subtype:
+            type: string
+            description: The subtype of the container.
+            enum:
+              - normal
+              - creators
+          origin:
+            type: object
+            properties:
+              country:
+                type: string
+                description: The origin country of the container.
+              language:
+                type: string
+                description: The origin language of the container.
+          created_at:
+            type: string
+            description: ISO 8601-format date and time when this container was created.
+          updated_at:
+            type: string
+            description: ISO 8601-format date and time when this container was last updated.
+          subscriptions:
+            type: object
+            properties:
+              count:
+                type: integer
+                description: The number of users who have subscribed to updates from this container.
+          contributors:
+            type: object
+            properties:
+              count:
+                type: integer
+                description: The number of users who have contributed subtitles or segments to this container.
+          team:
+            type: object
+            properties:
+              name:
+                type: string
+                description: The name of the community team managing this container.
+          titles:
+            type: object
+            description: This container's titles, keyed by language.
+          images:
+            type: object
+            properties:
+              poster:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: The URL of this container's poster image.
+                  source:
+                    type: string
+                    description: Where this poster image came from.
+          descriptions:
+            type: object
+            description: Plain-text descriptions of this container, keyed by language.
+          descriptions_html:
+            type: object
+            description: HTML descriptions of this container, keyed by language.
+          genres:
+            type: array
+            description: IDs of the genres of this container.
+          subtitle_completions:
+            type: object
+            description: "Completion percentages of the subtitles of this container,
+            keyed by language."
+          managers:
+            type: array
+            description: The channel managers of this container.
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The ID of this user.
+                username:
+                  type: string
+                  description: The username of this user.
+                images:
+                  type: object
+                  properties:
+                    avatar:
+                      type: object
+                      properties:
+                        url:
+                          type: string
+                          description: The URL of this user's avatar image.
+                url:
+                  type: object
+                  properties:
+                    web:
+                      type: string
+                      description: The URL to this user's profile on the Viki site.
+                    api:
+                      type: string
+                      description: The URL to this user on the Viki API.
+          url:
+            type: object
+            properties:
+              web:
+                type: string
+                description: The URL to this container on the Viki site.
+              api:
+                type: string
+                description: The URL to this container on the Viki API.
+              fb:
+                type: string
+                description: The canonical URL to this container, suitable for sharing on social networks.
+          flags:
+            type: object
+            properties:
+              licensed:
+                type: boolean
+                description: Whether this container is licensed from the content provider (if true) or a fan channel (if false).
+              hosted:
+                type: boolean
+                description: Whether this container's content is hosted by Viki.
+              state:
+                type: string
+                description: The state of this container.
+                enum:
+                  - normal
+                  - pending
+              adult:
+                type: boolean
+                description: Whether this container contains content which is not family friendly.
+              on_air:
+                type: boolean
+                description: Whether this container's content is currently on-air.
+          rating:
+            type: string
+            description: The content rating of this container.
+          review_stats:
+            type: object
+            properties:
+              average_rating:
+                type: float
+                description: The average review score of this container, out of 10.
+              count:
+                type: integer
+                description: The number of reviews this container has.
+          videoType:
+            type: object
+            description: "This object key will differ depending on the container type,
+            reflecting the type of videos it contains. It will be one of `episodes`, `movies`, `music_videos`, or `news_clips`."
+            properties:
+              count:
+                type: integer
+                description: The number of videos this container currently has.
+              url:
+                type: object
+                properties:
+                  api:
+                    type: string
+                    description: The URL to this container's videos on the API.
+          trailers:
+            type: object
+            description: "Information on any trailers this container has. This key will
+            not be included if there are no trailers."
+            properties:
+              count:
+                type: integer
+                description: The number of trailers this container has.
+              url:
+                type: object
+                properties:
+                  api:
+                    type: string
+                    description: The URL to this container's trailers on the API.
+          clips:
+            type: object
+            description: "Information on any clips this container has. This key will
+            not be included if there are no clips."
+            properties:
+              count:
+                type: integer
+                description: The number of clips this container has.
+              url:
+                type: object
+                properties:
+                  api:
+                    type: string
+                    description: The URL to this container's clips on the API.
+          titles_aka:
+            type: object
+            description: Alternate titles for this container, keyed by language.
+          titles_phonetic:
+            type: object
+            description: Phonetic titles for this container, keyed by language.
+          day_of_week:
+            type: array
+            description: For series, the days of the week on which new episodes will be released.
+          planned_episodes:
+            type: integer
+            description: For series, the number of episodes this container is expected to have.
+          distributors:
+            type: array
+            description: The distributors of this container's content.
+            items:
+              type: object
+              properties:
+                type:
+                  type: string
+                  description: The type of distributor.
+                name:
+                  type: string
+                  description: The name of this distributor.
+                from:
+                  type: string
+                  description: ISO 8601-format date that distribution starts on.
+                to:
+                  type: string
+                  description: ISO 8601-format date that distribution ends on.
+          watch_now:
+            $ref: '#/definitions/HyperionContainerWatchNowDetails'
+          viki_air_time:
+            type: integer
+            description: The Unix timestamp that this container is available from.
+          watch_next:
+            $ref: '#/definitions/HyperionContainerWatchNextDetails'
+      - $ref: '#/definitions/HyperionBlockingInfo'
+
+  HyperionContainerWatchNowDetails:
+    type: object
+    description: The latest available video in this container.
+    allOf:
+      $ref: '#/definitions/HyperionContainerVideoShortListing'
+
+  HyperionContainerWatchNextDetails:
+    type: object
+    description: The next upcoming video in this container.
+    allOf:
+      $ref: '#/definitions/HyperionContainerVideoShortListing'
+
+  HyperionContainerVideoShortListing:
+    type: object
+    properties:
+      id:
+        type: string
+        description: The ID of this video.
+      type:
+        type: string
+        description: The type of this video.
+        enum:
+          - clip
+          - episode
+          - music_video
+          - movie
+          - news_clip
+          - trailer
+      url:
+        type: object
+        properties:
+          web:
+            type: string
+            description: The URL of this video on Viki's site.
+          api:
+            type: string
+            description: The URL of this video on the Viki API.
+
+  HyperionAvailabilityInfo:
+    type: object
+    allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+            description: The ID of the resource.
+          country:
+            type: string
+            description: The country this availability object refers to.
+          group:
+            type: string
+            description: The application group this availability object refers to.
+      - $ref: "#/definitions/HyperionBlockingInfo"
+
+  HyperionVideoListing:
+    type: object
+    properties:
+      more:
+        type: boolean
+        description: Whether there are more pages of results after this one.
+      response:
+        type: array
+        description: The videos in the listing.
+        items:
+          $ref: "#/definitions/HyperionVideoDetails"
+
+  HyperionVideoDetails:
+    title: Video Details
+    allOf:
+      - type: object
+        properties:
+          id:
+            type: string
+            description: The videos's ID.
+          created_at:
+            type: string
+            description: ISO 8601-format date and time when this video was created.
+          updated_at:
+            type: string
+            description: ISO 8601-format date and time when this video was last updated.
+          type:
+            type: string
+            description: The type of the video.
+            enum:
+              - clip
+              - episode
+              - music_video
+              - movie
+              - news_clip
+              - trailer
+          duration:
+            type: integer
+            description: The duration of this video, in seconds.
+          number:
+            type: integer
+            description: The episode number of this video. Only meaningful if the video is of type `episode`.
+          origin:
+            type: object
+            properties:
+              language:
+                type: string
+                description: The origin language of the video.
+          titles:
+            type: object
+            description: This video's titles, keyed by language.
+          titles_phonetic:
+            type: object
+            description: Phonetic titles for this video, keyed by language.
+          titles_aka:
+            type: object
+            description: Alternate titles for this video, keyed by language.
+          descriptions:
+            type: object
+            description: Descriptions of this video, keyed by language.
+          subtitle_completions:
+            type: object
+            description: "Completion percentages of the subtitles of this video,
+            keyed by language."
+          container:
+            $ref: "#/definitions/HyperionVideoContainerShortListing"
+          hardsub_languages:
+            type: array
+            description: The languages this video has permanent subtitles (hardsubs) for.
+          source:
+            type: string
+            description: The source of this video.
+          images:
+            type: object
+            properties:
+              poster:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: The URL of this video's poster image.
+                  source:
+                    type: string
+                    description: Where this poster image came from.
+          likes:
+            type: object
+            properties:
+              count:
+                type: integer
+                description: The amount of likes this video has received.
+          flags:
+            type: object
+            properties:
+              licensed:
+                type: boolean
+                description: Whether this video is licensed from the content provider.
+              hosted:
+                type: boolean
+                description: Whether this video is hosted by Viki.
+              on_air:
+                type: boolean
+                description: Whether this video is currently on-air.
+              embeddable:
+                type: boolean
+                description: Whether this video can be embedded.
+              state:
+                type: string
+                description: The state of this video.
+              adult:
+                type: boolean
+                description: Whether this video contains content which is not family friendly.
+              hd:
+                type: boolean
+                description: Whether a HD stream exists for this video.
+              has_stream:
+                type: boolean
+                description: Whether a stream exists for this video.
+              exclusive:
+                type: boolean
+                description: Whether this video is exclusive to Viki.
+          url:
+            type: object
+            properties:
+              web:
+                type: string
+                description: The URL to this video on the Viki site.
+              api:
+                type: string
+                description: The URL to this video on the Viki API.
+              fb:
+                type: string
+                description: The canonical URL to this video, suitable for sharing on social networks.
+          embed:
+            type: object
+            properties:
+              iframe:
+                type: object
+                properties:
+                  url:
+                    type: string
+                    description: The URL to the embeddable player for this video.
+          rating:
+            type: string
+            description: The content rating of this video.
+          parts:
+            type: array
+            items:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The ID of this video part.
+                part:
+                  type: integer
+                  description: The part number of this video part.
+                url:
+                  type: string
+                  description: The URL to this video part on the Viki API.
+          viki_air_time:
+            type: integer
+            description: The Unix timestamp that this video is available from.
+          credits_marker:
+            type: integer
+            description: The timestamp, in seconds, at which the credits of this video start appearing.
+          part_index:
+            type: integer
+          author:
+            type: string
+            description: The creator of this video.
+          author_url:
+            type: string
+            description: The URL to this video's creator.
+      - $ref: "#/definitions/HyperionBlockingInfo"
+
+  HyperionVideoContainerShortListing:
+    type: object
+    properties:
+      id:
+        type: string
+        description: The container's ID.
+      type:
+        type: string
+        description: The type of the container.
+        enum:
+          - artist
+          - film
+          - news
+          - series
+      titles:
+        type: object
+        description: This container's titles, keyed by language.
+      team_name:
+        type: string
+        description: The name of the community team managing this container.
+      genres:
+        type: array
+        description: IDs of the genres of this container.
+      origin:
+        type: object
+        properties:
+          country:
+            type: string
+            description: The origin country of the container.
+          language:
+            type: string
+          description: The origin language of the container.
+      url:
+        type: object
+        properties:
+          web:
+            type: string
+            description: The URL to this container on the Viki site.
+          api:
+            type: string
+            description: The URL to this container on the Viki API
+      managers:
+        type: array
+        description: The channel managers of this container.
+        items:
+          type: object
+          properties:
+            id:
+              type: string
+              description: The ID of this user.
+            username:
+              type: string
+              description: The username of this user.
+            images:
+              type: object
+              properties:
+                avatar:
+                  type: object
+                  properties:
+                    url:
+                      type: string
+                      description: The URL of this user's avatar image.
+            url:
+              type: object
+              properties:
+                web:
+                  type: string
+                  description: The URL to this user's profile on the Viki site.
+                api:
+                  type: string
+                  description: The URL to this user on the Viki API.
+      images:
+        type: object
+        properties:
+          poster:
+            type: object
+            properties:
+              url:
+                type: string
+                description: The URL of this container's poster image.
+              source:
+                type: string
+                description: Where this poster image came from.
+      review_stats:
+        type: object
+        properties:
+          average_rating:
+            type: float
+            description: The average review score of this container, out of 10.
+          count:
+            type: integer
+            description: The number of reviews this container has.
+      planned_episodes:
+        type: integer
+        description: For series, the number of episodes this container is expected to have.

@@ -1,0 +1,97 @@
+swagger: '2.0'
+info:
+  title: Hyperion API
+  version: "v5"
+host: api-staging.viki.net
+# array of all schemes that your API supports
+schemes:
+  - http
+# will be prefixed to all paths
+basePath: /v5
+produces:
+  - application/json
+securityDefinitions:
+  ClientId:
+    type: apiKey
+    name: app
+    in: query
+    description: ! "Register your application at the **Viki application dashboard**.
+      \n\nYou may use your normal Viki account or create a separate account to manage
+      your applications. You will be granted a **Client ID** and a **Client Secret**.\n"
+  ClientSecret:
+    type: apiKey
+    name: secret
+    in: header
+    description: ''
+  Token:
+    type: apiKey
+    name: token
+    in: query
+    description: ! "\nLogin a user to obtain a user access token.\n\n**POST /v5/sessions.json**\n\n*Params*\n
+      \ * username\n  * password\n  \nExample: `{\\\"username\\\": \\\"tyler\\\",\\\"password\\\":
+      \\\"relyt\\\"}`\n\nThe returned value includes two fields: token and user. The
+      token acts like a session id, and should be included in any subsequent user-specific
+      requests via token=TOKEN. The user field in general information about the user.\n"
+
+paths:
+  "/verticals.json":
+    get:
+      tags:
+        - Verticals
+        - Read
+      description: "This route returns information on all verticals."
+      parameters:
+        - name: with_paging
+          in: query
+          type: boolean
+          description: Whether or not pagination information should be included in the response.
+      responses:
+        200:
+          description: Details on all verticals.
+          schema:
+            $ref: '#/definitions/HyperionVerticalListing'
+
+
+definitions:
+  HyperionVerticalListing:
+    type: object
+    properties:
+      more:
+        type: boolean
+        description: Whether there is another page of verticals after this one.
+      response:
+        type: array
+        description: The verticals in the listing.
+        items:
+          $ref: '#/definitions/HyperionVerticalDetails'
+
+  HyperionVerticalDetails:
+    type: object
+    properties:
+      id:
+        type: string
+        description: The vertical's ID.
+      titles:
+        type: object
+        description: Any titles this vertical has.
+      descriptions:
+        type: object
+        description: Any descriptions of this vertical.
+      images:
+        type: object
+        description: Any images associated with this vertical.
+      url:
+        type: object
+        description: Canonical URLs of this vertical.
+      type:
+        type: string
+        description: Always "vertical".
+      blocked:
+        type: boolean
+      blocking:
+        type: object
+        properties:
+          geo:
+            type: boolean
+          paywall:
+            type: boolean

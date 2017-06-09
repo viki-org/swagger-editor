@@ -33,6 +33,7 @@ require('spec/controllers/errorpresenter');
 require('spec/controllers/file-import');
 require('spec/controllers/main');
 require('spec/controllers/openexamples');
+require('spec/controllers/openreposapi');
 require('spec/controllers/preview');
 require('spec/controllers/tryoperation/hasRequestBody');
 require('spec/controllers/tryoperation/getRequestBody');

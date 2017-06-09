@@ -1,0 +1,108 @@
+paths:
+  "/applications/{ID}.json":
+    parameters:
+      - name: ID
+        required: true
+        in: path
+        type: string
+        description: The ID of the application.
+        pattern: ^\d+a$
+    get:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      tags:
+        - Read
+        - Applications
+        - Signed Request Required
+        - Internal
+      summary: Retrieves information on an application.
+      description: "This route allows apps with the `manage` permission to retrieve
+      full details on applications, and is intended only for internal use.
+      All requests to this route must be signed."
+      responses:
+        200:
+          description: The requested application, returned on success.
+          schema:
+            $ref: "#/definitions/ApplicationDBModel"
+        401:
+          description: "Returned if the calling application does not have manage
+          permissions, or if the request was not signed."
+          schema:
+            $ref: "#/definitions/OceanusResponseDenied"
+        404:
+          description: Returned if no application could be found with the specified ID.
+          schema:
+            $ref: "#/definitions/OceanusResponseNotFound"
+  "/applications.json":
+    get:
+      security:
+        - ClientId: []
+        - ClientSecret: []
+      tags:
+        - Read
+        - Applications
+        - Signed Request Required
+        - Internal
+      summary: Retrieves information for all applications.
+      description: "This route allows apps with the `manage` permission to retrieve
+      full details of all applications, and is intended only for internal use.
+      All requests to this route must be signed."
+      responses:
+        200:
+          description: All applications, returned on success.
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/ApplicationDBModel"
+        401:
+          description: "Returned if the calling application does not have manage
+          permissions, or if the request was not signed."
+          schema:
+            $ref: "#/definitions/OceanusResponseDenied"
+definitions:
+  ApplicationDBModel:
+    title: Application
+    type: object
+    description: "An application's details. Note that all string fields here may
+    be returned with null or empty string values."
+    properties:
+      id:
+        type: string
+        description: The ID of the application.
+      account_id:
+        type: string
+        description: The ID of the user to whom this application is registered.
+      platform:
+        type: string
+        description: The platform on which this application runs.
+      name:
+        type: string
+        description: The name of the application.
+      secret:
+        type: string
+        description: The application's client secret.
+      permissions:
+        type: object
+        description: "Key-value pairs indicating the permissions this application
+        has. Values are always true; the presence of a key here indicates the
+        application has that permission."
+      group_id:
+        type: integer
+        description: The application group this application belongs to.
+      domains:
+        type: string
+        description: "A comma-separated string of the web domains associated
+        with this application."
+      inclusion_list_id:
+        type: string
+      exclusion_list_id:
+        type: string
+      flurry_id:
+        type: string
+      manufacturers:
+        type: string
+        description: The manufacturers associated with this application.
+      alternate_secret:
+        type: string
+        description: The application's secondary client secret.

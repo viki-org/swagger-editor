@@ -2,7 +2,7 @@
 
 var angular = require('angular');
 
-describe('Controller: OpenExamplesCtrl', function() {
+describe('Controller: OpenReposApiCtrl', function() {
   // load the controller's module
   beforeEach(angular.mock.module('SwaggerEditor'));
 
@@ -32,7 +32,7 @@ describe('Controller: OpenExamplesCtrl', function() {
       }
     };
 
-    $controller('OpenExamplesCtrl', {
+    $controller('OpenReposApiCtrl', {
       $scope: scope,
       $uibModalInstance: $uibModalInstance,
       FileLoader: FileLoader
@@ -48,7 +48,7 @@ describe('Controller: OpenExamplesCtrl', function() {
     expect(scope.selectedFile).to.equal('default.yaml');
   });
 
-  it('honors defaults.examplesFolder configuration when opening files',
+  it('honors defaults.reposyamlFolder configuration when opening files',
     function() {
       sinon.stub(FileLoader, 'loadFromUrl').returns({then: sinon.spy()});
 
