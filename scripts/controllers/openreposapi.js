@@ -7,7 +7,7 @@ SwaggerEditor.controller('OpenReposApiCtrl', function OpenReposApiCtrl($scope,
   Analytics, defaults) {
   $http({
     method: 'GET',
-    url: 'http://127.0.0.1:8080/repo-yaml'
+    url: '/repo-yaml/'
   }).then(function(response) {
     $scope.files = response.data;
     $scope.status = response.status;
