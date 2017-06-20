@@ -36,11 +36,7 @@ function startServer(port, cb) {
 
 // if this file was triggered directly, launch the server
 if (require.main === module) {
-<<<<<<< HEAD
-  var PORT = process.env.PORT || 80;
-=======
   var PORT = process.env.PORT || 3000;
->>>>>>> 610d5a8... fix
 
   startServer(PORT, function(err) {
     if (err) {
