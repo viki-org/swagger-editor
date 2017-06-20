@@ -5,9 +5,11 @@ var _ = require('lodash');
 SwaggerEditor.controller('OpenReposApiCtrl', function OpenReposApiCtrl($scope,
   $uibModalInstance, $rootScope, $state, $http, FileLoader, Builder, Storage,
   Analytics, defaults) {
+
   $http({
     method: 'GET',
-    url: '/repo-yaml/'
+    url: '/repo-yaml/',
+    cache: true
   }).then(function(response) {
     $scope.files = response.data;
     $scope.status = response.status;
