@@ -5,19 +5,17 @@ var _ = require('lodash');
 SwaggerEditor.controller('OpenReposApiCtrl', function OpenReposApiCtrl($scope,
   $uibModalInstance, $rootScope, $state, $http, FileLoader, Builder, Storage,
   Analytics, defaults) {
-
   $http({
     method: 'GET',
     url: '/repo-yaml/',
     cache: true
   }).then(function(response) {
-    $scope.files = response.data;
+    $scope.files = response.data.split('\n');
     $scope.status = response.status;
   }, function(response) {
     $scope.files = response.data || 'Request failed';
     $scope.status = response.status;
   });
-  $scope.selectedFile = defaults.repoyamlFiles[0];
 
   $scope.open = function(file) {
     // removes trailing slash from pathname because examplesFolder always have a
