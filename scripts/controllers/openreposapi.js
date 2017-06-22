@@ -10,7 +10,9 @@ SwaggerEditor.controller('OpenReposApiCtrl', function OpenReposApiCtrl($scope,
     url: '/repo-yaml/',
     cache: true
   }).then(function(response) {
-    $scope.files = response.data.split('\n');
+    $scope.files = response.data.split('\n').filter(function(file) {
+      return file.endsWith(".yaml") || file.endsWith(".yml");
+    });
     $scope.status = response.status;
   }, function(response) {
     $scope.files = response.data || 'Request failed';
@@ -25,7 +27,6 @@ SwaggerEditor.controller('OpenReposApiCtrl', function OpenReposApiCtrl($scope,
       location.pathname;
 
     var url = '/' + pathname + defaults.repoyamlFolder + file;
-    console.log(url);
 
     FileLoader.loadFromUrl(url).then(function(value) {
       Storage.save('yaml', value);
