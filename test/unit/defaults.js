@@ -21,7 +21,7 @@ SwaggerEditor.config(function($provide) {
       'security.yaml'
     ],
     repoyamlFiles: [
-      'users-users.yaml',
+      'combined.yaml',
     ],
     autocompleteExtension: {},
     useBackendForStorage: false,

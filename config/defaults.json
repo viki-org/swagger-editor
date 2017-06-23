@@ -29,7 +29,7 @@
     "twitter.yaml"
   ],
   "repoyamlFiles": [
-    "users-users.yaml"
+    "combined.yaml"
   ],
   "autocompleteExtension": {},
   "useBackendForStorage": false,
