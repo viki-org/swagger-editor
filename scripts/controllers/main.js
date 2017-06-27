@@ -41,7 +41,7 @@ SwaggerEditor.controller('MainCtrl', function MainCtrl(
 
       // If there is no saved YAML either, load the default example
       } else if (!yaml) {
-        url = defaults.yamlFolder + defaults.repoyamlFiles[0];
+        url = defaults.repoyamlFolder + defaults.repoyamlFiles[0];
       }
 
       if (url) {
