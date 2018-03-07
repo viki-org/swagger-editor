@@ -1,0 +1,24 @@
+{
+  "presets": [
+    "es2015",
+    "react",
+    "stage-0"
+  ],
+  "plugins": [
+  "transform-runtime",
+  "transform-async-to-generator",
+  [
+    "module-alias",
+    [
+      {
+        "expose": "plugins",
+        "src": "src/plugins"
+      },
+      {
+        "expose": "src",
+        "src": "src"
+      }
+    ]
+  ]
+]
+}
