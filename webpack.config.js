@@ -1,4 +1,4 @@
-'use strict';
+module.exports = require("./make-webpack-config")({
 
 var path = require('path');
 var webpack = require('webpack');
@@ -91,3 +91,5 @@ if (argv.production) {
 }
 
 module.exports = config;
+=======
+});
