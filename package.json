@@ -138,6 +138,6 @@
     "IE 10"
   ],
   "optionalDependencies": {
-    "webpack-dev-server": "1.14.0"
+    "webpack-dev-server": "5.2.1"
   }
 }
